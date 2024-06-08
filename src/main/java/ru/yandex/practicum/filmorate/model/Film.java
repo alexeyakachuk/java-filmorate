@@ -4,6 +4,7 @@ import lombok.Data;
 
 
 import java.time.Duration;
+import java.time.LocalDate;
 
 /**
  * Film.
@@ -13,5 +14,6 @@ public class Film {
 private Long id;
 private String name;
 private String description;
+private LocalDate releaseData;
 private Duration duration;
 }
