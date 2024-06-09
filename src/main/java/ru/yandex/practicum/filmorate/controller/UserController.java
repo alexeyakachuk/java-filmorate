@@ -20,7 +20,6 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
-        log.info("Получаем всех пользователей");
         return users.values();
     }
 
@@ -49,7 +48,7 @@ public class UserController {
         return newUser;
     }
 
-    private static void checkId(User newUser) {
+    private void checkId(User newUser) {
         if (newUser.getId() == null) {
             throw new ValidationException("Id пользователя должен быть указан");
         }
@@ -79,7 +78,7 @@ public class UserController {
             }
 
             if (!isEmailUnique(newUser)) {
-                throw new DuplicatedDataException("Этот Email уже используется");
+                throw new ValidationException("Этот Email уже используется");
             }
 
             if (!newUser.getEmail().contains("@")) {
