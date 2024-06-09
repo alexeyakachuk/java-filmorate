@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -31,9 +32,9 @@ public class FilmController {
             throw new ValidationException("Описание  фильма не должно быть больше 200 символов");
         }
 
-        if (newFilm.getReleaseData() != null) {
-            LocalDate releaseData = newFilm.getReleaseData();
-            if (!isReleaseDate(releaseData)) {
+        if (newFilm.getReleaseDate() != null) {
+            LocalDate releaseDate = newFilm.getReleaseDate();
+            if (!isReleaseDate(releaseDate)) {
                 throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
             }
         }
@@ -44,6 +45,9 @@ public class FilmController {
                 throw new ValidationException("Продолжительность фильма должна быть положительным числом");
             }
         }
+
+        newFilm.setId(getNextId());
+        films.put(newFilm.getId(), newFilm);
         return null;
     }
 
