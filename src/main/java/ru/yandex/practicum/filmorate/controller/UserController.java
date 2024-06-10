@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
@@ -61,7 +60,7 @@ public class UserController {
     private boolean isEmailUnique(User newUser) {
         Optional<User> any = users.values()
                 .stream()
-                .filter(user -> user.getEmail().equals(newUser.getEmail()))
+                .filter(user -> !user.getId().equals(newUser.getId()) && user.getEmail().equals(newUser.getEmail()))
                 .findAny();
         return any.isEmpty();
     }
