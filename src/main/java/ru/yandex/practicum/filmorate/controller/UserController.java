@@ -105,7 +105,7 @@ public class UserController {
             } else {
                 throw new ValidationException("Дата рождения должна быть указана");
             }
-        }catch (ValidationException e) {
+        } catch (ValidationException e) {
             log.warn(e.getMessage());
             throw e;
         }

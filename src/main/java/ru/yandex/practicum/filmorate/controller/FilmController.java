@@ -21,8 +21,8 @@ public class FilmController {
     @GetMapping
     public List<Film> findAll() {
         List<Film> films = new ArrayList<>(this.films.values());
-        films.sort(Comparator.comparing(Film::getName).
-              thenComparing(Film::getReleaseDate));
+        films.sort(Comparator.comparing(Film::getName)
+                .thenComparing(Film::getReleaseDate));
         return films;
     }
 
