@@ -19,7 +19,7 @@ public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         List<Film> films = new ArrayList<>(this.films.values());
         films.sort(Comparator.comparing(Film::getName).
               thenComparing(Film::getReleaseDate));
