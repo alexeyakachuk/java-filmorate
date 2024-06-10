@@ -1,27 +1,29 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
+@Getter
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        List<Film> films = new ArrayList<>(this.films.values());
+        films.sort(Comparator.comparing(Film::getName).
+              thenComparing(Film::getReleaseDate));
+        return films;
     }
 
     @PostMapping
@@ -31,7 +33,7 @@ public class FilmController {
         long nextId = getNextId();
         newFilm.setId(getNextId());
         films.put(newFilm.getId(), newFilm);
-        log.info("Создан пользователь с id {}", nextId);
+        log.info("Создан фильм с id {}", nextId);
         return newFilm;
     }
 
@@ -86,7 +88,6 @@ public class FilmController {
                     throw new ValidationException("Продолжительность фильма должна быть положительным числом");
                 }
             }
-
         } catch (ValidationException e) {
             log.warn(e.getMessage());
             throw e;

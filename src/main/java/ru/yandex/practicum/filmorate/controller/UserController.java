@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,6 +14,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@Getter
 public class UserController {
 
 
@@ -20,7 +22,9 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
-        return users.values();
+        List<User> users = new ArrayList<>(this.users.values());
+        users.sort(Comparator.comparing(User::getName));
+        return users;
     }
 
     // создание
