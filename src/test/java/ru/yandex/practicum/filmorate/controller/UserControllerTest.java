@@ -49,18 +49,22 @@ public class UserControllerTest {
                 .email("email@yandex.ru").build();
         userController.create(user);
 
+        User user1 = User.builder().
+                name("new name")
+                .login("newLogin")
+                .birthday(LocalDate.of(1990, 10, 17))
+                .email("new email@yandex.ru")
+                .id(user.getId())
+                .build();
 
-        user.setName("new name");
-        user.setLogin("newLogin");
-        user.setBirthday(LocalDate.of(1990, 10, 17));
-        user.setEmail("new email@yandex.ru");
+        userController.update(user1);
 
-        User updatedUser = userController.update(user);
+        User updateUser = userController.findAll().getFirst();
 
-        assertEquals("new name", updatedUser.getName());
-        assertEquals("newLogin", updatedUser.getLogin());
-        assertEquals(LocalDate.of(1990, 10, 17), updatedUser.getBirthday());
-        assertEquals("new email@yandex.ru", updatedUser.getEmail());
+        assertEquals("new name", updateUser.getName());
+        assertEquals("newLogin", updateUser.getLogin());
+        assertEquals(LocalDate.of(1990, 10, 17), updateUser.getBirthday());
+        assertEquals("new email@yandex.ru", updateUser.getEmail());
     }
 
     @Test
