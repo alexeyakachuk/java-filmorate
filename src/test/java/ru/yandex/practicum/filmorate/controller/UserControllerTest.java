@@ -16,8 +16,8 @@ public class UserControllerTest {
     void createTest() {
         UserController userController = new UserController();
 
-        User user = User.builder().
-                name("name")
+        User user = User.builder()
+                .name("name")
                 .login("login")
                 .birthday(LocalDate.of(1989, 10, 17))
                 .email("email@yandex.ru").build();
@@ -42,15 +42,15 @@ public class UserControllerTest {
     void updateTest() {
         UserController userController = new UserController();
 
-        User user = User.builder().
-                name("name")
+        User user = User.builder()
+                .name("name")
                 .login("login")
                 .birthday(LocalDate.of(1989, 10, 17))
                 .email("email@yandex.ru").build();
         userController.create(user);
 
-        User user1 = User.builder().
-                name("new name")
+        User user1 = User.builder()
+                .name("new name")
                 .login("newLogin")
                 .birthday(LocalDate.of(1990, 10, 17))
                 .email("new email@yandex.ru")
@@ -71,8 +71,8 @@ public class UserControllerTest {
     void findAllTest() {
         UserController userController = new UserController();
 
-        User user = User.builder().
-                name("name")
+        User user = User.builder()
+                .name("name")
                 .login("login")
                 .birthday(LocalDate.of(1989, 10, 17))
                 .email("email@yandex.ru").build();
