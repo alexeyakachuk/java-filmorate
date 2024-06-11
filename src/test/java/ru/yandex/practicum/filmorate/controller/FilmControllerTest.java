@@ -67,7 +67,7 @@ public class FilmControllerTest {
         assertEquals("new name", updatedFilm.getName());
         assertEquals("new description", updatedFilm.getDescription());
         assertEquals(LocalDate.of(2001, 1, 1), updatedFilm.getReleaseDate());
-        assertEquals(Duration.ofMinutes(150), updatedFilm.getDuration());
+        assertEquals(150, updatedFilm.getDuration());
     }
 
     @Test
