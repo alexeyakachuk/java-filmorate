@@ -21,8 +21,7 @@ public class FilmController {
     @GetMapping
     public List<Film> findAll() {
         List<Film> films = new ArrayList<>(this.films.values());
-        films.sort(Comparator.comparing(Film::getName)
-                .thenComparing(Film::getReleaseDate));
+        films.sort(Comparator.comparing(Film::getName).thenComparing(Film::getReleaseDate));
         return films;
     }
 
@@ -87,6 +86,8 @@ public class FilmController {
                 if (duration.isNegative() || duration.isZero()) {
                     throw new ValidationException("Продолжительность фильма должна быть положительным числом");
                 }
+// добавил код
+                newFilm.setDuration(Duration.ofSeconds(duration.getSeconds()));
             }
         } catch (ValidationException e) {
             log.warn(e.getMessage());
