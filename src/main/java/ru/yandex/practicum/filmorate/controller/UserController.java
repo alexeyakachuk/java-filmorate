@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
@@ -28,12 +29,13 @@ public class UserController {
 
     // создание
     @PostMapping
-    public User create(@RequestBody User newUser) {
-        validate(newUser);
+    public User create(@Valid @RequestBody User newUser) {
+       // validate(newUser);
 
-        if (newUser.getName().isBlank()) {
-            newUser.setName(newUser.getLogin());
-        }
+//        if (newUser.getName().isBlank()) {
+//            newUser.setName(newUser.getLogin());
+//        }
+
 
         long nextId = getNextId();
         newUser.setId(nextId);
@@ -43,9 +45,9 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User newUser) {
+    public User update(@Valid @RequestBody User newUser) {
         checkId(newUser);
-        validate(newUser);
+       // validate(newUser);
         users.put(newUser.getId(), newUser);
         log.info("Пользователь c id {} обновлен", newUser.getId());
         return newUser;
@@ -74,40 +76,41 @@ public class UserController {
         return ++currentMaxId;
     }
 
-    private void validate(User newUser) {
-        try {
-            if (ObjectUtils.isEmpty(newUser.getEmail())) {
-                throw new ValidationException("Email должен быть указан");
-            }
-
-            if (!isEmailUnique(newUser)) {
-                throw new ValidationException("Этот Email уже используется");
-            }
-
-            if (!newUser.getEmail().contains("@")) {
-                throw new ValidationException("Имейл должен содержать символ @");
-            }
-
-            if (ObjectUtils.isEmpty(newUser.getLogin())) {
-                throw new ValidationException("Login должен быть указан");
-            }
-
-            if (newUser.getLogin().contains(" ")) {
-                throw new ValidationException("Login не может содержать пробелы");
-            }
-
-            if (newUser.getBirthday() != null) {
-                LocalDate birthDate = newUser.getBirthday();
-                LocalDate today = LocalDate.now();
-                if (birthDate.isAfter(today)) {
-                    throw new ValidationException("Дата рождения не может быть в будущем");
-                }
-            } else {
-                throw new ValidationException("Дата рождения должна быть указана");
-            }
-        } catch (ValidationException e) {
-            log.warn(e.getMessage());
-            throw e;
-        }
-    }
+//
+//    private void validate(@Valid User newUser) {
+//        try {
+//            if (ObjectUtils.isEmpty(newUser.getEmail())) {
+//                throw new ValidationException("Email должен быть указан");
+//            }
+//
+//            if (!isEmailUnique(newUser)) {
+//                throw new ValidationException("Этот Email уже используется");
+//            }
+//
+//            if (!newUser.getEmail().contains("@")) {
+//                throw new ValidationException("Имейл должен содержать символ @");
+//            }
+//
+//            if (ObjectUtils.isEmpty(newUser.getLogin())) {
+//                throw new ValidationException("Login должен быть указан");
+//            }
+//
+//            if (newUser.getLogin().contains(" ")) {
+//                throw new ValidationException("Login не может содержать пробелы");
+//            }
+//
+//            if (newUser.getBirthday() != null) {
+//                LocalDate birthDate = newUser.getBirthday();
+//                LocalDate today = LocalDate.now();
+//                if (birthDate.isAfter(today)) {
+//                    throw new ValidationException("Дата рождения не может быть в будущем");
+//                }
+//            } else {
+//                throw new ValidationException("Дата рождения должна быть указана");
+//            }
+//        } catch (ValidationException e) {
+//            log.warn(e.getMessage());
+//            throw e;
+//        }
+//    }
 }
