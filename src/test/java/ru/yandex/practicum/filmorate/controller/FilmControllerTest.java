@@ -24,7 +24,7 @@ public class FilmControllerTest {
                 .name("name")
                 .description("description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120)
                 .build();
         filmController.create(film);
 
@@ -32,7 +32,7 @@ public class FilmControllerTest {
                 .name("name1")
                 .description("description1")
                 .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(130))
+                .duration(130)
                 .build();
         filmController.create(film1);
 
@@ -47,7 +47,7 @@ public class FilmControllerTest {
                 .name("name")
                 .description("description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120)
                 .build();
         filmController.create(film);
 
@@ -55,7 +55,7 @@ public class FilmControllerTest {
                 .name("new name")
                 .description("new description")
                 .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(150))
+                .duration(150)
                 .id(film.getId())
                 .build();
 
@@ -77,7 +77,7 @@ public class FilmControllerTest {
                 .name("t")
                 .description("description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120)
                 .build();
         filmController.create(film);
 
@@ -85,7 +85,7 @@ public class FilmControllerTest {
                 .name("a")
                 .description("description1")
                 .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(130))
+                .duration(130)
                 .build();
         filmController.create(film1);
 
@@ -93,7 +93,7 @@ public class FilmControllerTest {
                 .name("a")
                 .description("description1")
                 .releaseDate(LocalDate.of(1990, 1, 1))
-                .duration(Duration.ofMinutes(130))
+                .duration(130)
                 .build();
         filmController.create(film2);
 

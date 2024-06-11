@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 
 import java.time.LocalDate;
 
@@ -17,6 +16,7 @@ public class User {
     @NotBlank(message = "Не может быть пустым")
     @NotNull
     private String login;
+
     private String name;
     @PastOrPresent(message = "не может быть в будущем")
     private LocalDate birthday;
