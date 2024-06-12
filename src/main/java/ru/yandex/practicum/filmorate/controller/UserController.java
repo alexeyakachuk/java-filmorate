@@ -19,7 +19,7 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
     @GetMapping
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         List<User> users = new ArrayList<>(this.users.values());
         return users;
     }

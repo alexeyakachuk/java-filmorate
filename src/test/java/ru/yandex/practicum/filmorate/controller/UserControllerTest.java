@@ -38,34 +38,34 @@ public class UserControllerTest {
 
     }
 
-//    @Test
-//    void updateTest() {
-//        UserController userController = new UserController();
-//
-//        User user = User.builder()
-//                .name("name")
-//                .login("login")
-//                .birthday(LocalDate.of(1989, 10, 17))
-//                .email("email@yandex.ru").build();
-//        userController.create(user);
-//
-//        User user1 = User.builder()
-//                .name("new name")
-//                .login("newLogin")
-//                .birthday(LocalDate.of(1990, 10, 17))
-//                .email("new email@yandex.ru")
-//                .id(user.getId())
-//                .build();
-//
-//        userController.update(user1);
-//
-//        User updateUser = userController.findAll().getFirst();
-//
-//        assertEquals("new name", updateUser.getName());
-//        assertEquals("newLogin", updateUser.getLogin());
-//        assertEquals(LocalDate.of(1990, 10, 17), updateUser.getBirthday());
-//        assertEquals("new email@yandex.ru", updateUser.getEmail());
-//    }
+    @Test
+    void updateTest() {
+        UserController userController = new UserController();
+
+        User user = User.builder()
+                .name("name")
+                .login("login")
+                .birthday(LocalDate.of(1989, 10, 17))
+                .email("email@yandex.ru").build();
+        userController.create(user);
+
+        User user1 = User.builder()
+                .name("new name")
+                .login("newLogin")
+                .birthday(LocalDate.of(1990, 10, 17))
+                .email("new email@yandex.ru")
+                .id(user.getId())
+                .build();
+
+        userController.update(user1);
+
+        User updateUser = userController.findAll().getFirst();
+
+        assertEquals("new name", updateUser.getName());
+        assertEquals("newLogin", updateUser.getLogin());
+        assertEquals(LocalDate.of(1990, 10, 17), updateUser.getBirthday());
+        assertEquals("new email@yandex.ru", updateUser.getEmail());
+    }
 
     @Test
     void findAllTest() {
@@ -89,10 +89,9 @@ public class UserControllerTest {
 
         assertEquals(2, users.size());
 
-        List<User> sortedUsers = new ArrayList<>(users);
-        sortedUsers.sort(Comparator.comparing(User::getName));
+        List<User> newListUsers = new ArrayList<>(users);
 
-        assertEquals(sortedUsers, users);
+        assertEquals(newListUsers, users);
     }
 }
 
