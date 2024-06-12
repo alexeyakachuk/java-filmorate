@@ -23,7 +23,6 @@ public class FilmController {
     @GetMapping
     public List<Film> findAll() {
         List<Film> films = new ArrayList<>(this.films.values());
-        films.sort(Comparator.comparing(Film::getName).thenComparing(Film::getReleaseDate));
         return films;
     }
 
@@ -65,6 +64,9 @@ public class FilmController {
     }
 
     private long getNextId() {
+        if (films.isEmpty()) {
+            return 1;
+        }
         long currentMaxId = films.keySet()
                 .stream()
                 .mapToLong(id -> id)
@@ -75,7 +77,6 @@ public class FilmController {
 
     private void validate(Film newFilm) {
         try {
-
             LocalDate releaseDate = newFilm.getReleaseDate();
             if (!isReleaseDate(releaseDate)) {
                 throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");

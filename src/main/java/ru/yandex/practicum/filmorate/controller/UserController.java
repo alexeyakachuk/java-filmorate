@@ -19,9 +19,8 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
     @GetMapping
-    public List<User> findAll() {
+    public Collection<User> findAll() {
         List<User> users = new ArrayList<>(this.users.values());
-        users.sort(Comparator.comparing(User::getName));
         return users;
     }
 
@@ -67,6 +66,9 @@ public class UserController {
     }
 
     private long getNextId() {
+        if (users.isEmpty()) {
+            return 1;
+        }
         long currentMaxId = users.keySet()
                 .stream()
                 .mapToLong(id -> id)
