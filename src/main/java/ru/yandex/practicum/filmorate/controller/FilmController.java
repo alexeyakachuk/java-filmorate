@@ -40,6 +40,10 @@ public class FilmController {
 
     @PutMapping
     public Film update(@Valid @RequestBody Film newFilm) {
+        if (films.get(newFilm.getId()) == null) {
+            log.warn("Невозможно обновить фильм");
+            throw new ValidationException("Невозможно обновить фильм");
+        }
 
         checkId(newFilm);
         validate(newFilm);
@@ -76,11 +80,6 @@ public class FilmController {
             if (!isReleaseDate(releaseDate)) {
                 throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
             }
-//            if (newFilm.toString().isEmpty()) {
-//                throw new ValidationException("cds");
-//            }
-
-
         } catch (ValidationException e) {
             log.warn(e.getMessage());
             throw e;
