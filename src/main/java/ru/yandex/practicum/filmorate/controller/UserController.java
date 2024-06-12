@@ -28,6 +28,11 @@ public class UserController {
     // создание
     @PostMapping
     public User create(@Valid @RequestBody User newUser) {
+
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            newUser.setName(newUser.getLogin());
+        }
+
         long nextId = getNextId();
         newUser.setId(nextId);
         users.put(newUser.getId(), newUser);

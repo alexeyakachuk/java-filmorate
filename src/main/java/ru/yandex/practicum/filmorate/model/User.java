@@ -16,7 +16,6 @@ public class User {
     @NotBlank(message = "Не может быть пустым")
     @NotNull
     private String login;
-
     private String name;
     @PastOrPresent(message = "не может быть в будущем")
     private LocalDate birthday;
