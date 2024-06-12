@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -15,6 +16,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/films")
 @Getter
+@RequiredArgsConstructor
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
 
@@ -38,6 +40,7 @@ public class FilmController {
 
     @PutMapping
     public Film update(@Valid @RequestBody Film newFilm) {
+
         checkId(newFilm);
         validate(newFilm);
         long nextId = getNextId();
@@ -73,6 +76,9 @@ public class FilmController {
             if (!isReleaseDate(releaseDate)) {
                 throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
             }
+//            if (newFilm.toString().isEmpty()) {
+//                throw new ValidationException("cds");
+//            }
 
 
         } catch (ValidationException e) {

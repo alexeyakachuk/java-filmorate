@@ -28,6 +28,11 @@ public class UserController {
     // создание
     @PostMapping
     public User create(@Valid @RequestBody User newUser) {
+
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            newUser.setName(newUser.getLogin());
+        }
+
         long nextId = getNextId();
         newUser.setId(nextId);
         users.put(newUser.getId(), newUser);
@@ -38,7 +43,6 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User newUser) {
         checkId(newUser);
-       // validate(newUser);
         users.put(newUser.getId(), newUser);
         log.info("Пользователь c id {} обновлен", newUser.getId());
         return newUser;
@@ -48,6 +52,10 @@ public class UserController {
         if (newUser.getId() == null) {
             throw new ValidationException("Id пользователя должен быть указан");
         }
+        if (!users.containsKey(newUser.getId())) {
+            throw new ValidationException("Пользователя с таким id нет");
+        }
+
     }
 
     private boolean isEmailUnique(User newUser) {
