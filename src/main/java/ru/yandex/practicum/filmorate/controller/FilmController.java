@@ -64,9 +64,9 @@ public class FilmController {
     }
 
     private long getNextId() {
-        if (films.isEmpty()) {
-            return 1;
-        }
+//        if (films.isEmpty()) {
+//            return 1;
+//        }
         long currentMaxId = films.keySet()
                 .stream()
                 .mapToLong(id -> id)
