@@ -66,9 +66,9 @@ public class UserController {
     }
 
     private long getNextId() {
-        if (users.isEmpty()) {
-            return 1;
-        }
+//        if (users.isEmpty()) {
+//            return 1;
+//        }
         long currentMaxId = users.keySet()
                 .stream()
                 .mapToLong(id -> id)
