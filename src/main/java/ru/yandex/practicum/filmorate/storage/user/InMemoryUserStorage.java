@@ -19,8 +19,6 @@ public class InMemoryUserStorage implements UserStorage {
     protected final Map<Long, User> users = new HashMap<>();
 
 
-
-
     @Override
     public List<User> findAllUsers() {
         List<User> users = new ArrayList<>(this.users.values());
@@ -78,7 +76,6 @@ public class InMemoryUserStorage implements UserStorage {
             oldUser.setFriends(newUser.getFriends());
         }
     }
-
 
     private void checkId(User newUser) {
         if (newUser.getId() == null) {

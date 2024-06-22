@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Film.
@@ -24,4 +25,5 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
+    private Set<Long> like;
 }

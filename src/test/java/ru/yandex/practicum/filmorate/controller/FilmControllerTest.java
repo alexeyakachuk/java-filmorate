@@ -2,18 +2,29 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+
 import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilmControllerTest {
-    FilmController filmController;
 
-    @BeforeEach
-    public void init() {
-        filmController = new FilmController();
+
+    InMemoryFilmStorage inMemoryFilmStorage;
+
+    //    @BeforeEach
+//    public void init() {
+//        filmController = new FilmController();
+//    }
+
+    @Autowired
+    public FilmControllerTest(InMemoryFilmStorage inMemoryFilmStorage) {
+        this.inMemoryFilmStorage = inMemoryFilmStorage;
     }
 
     @Test
@@ -24,7 +35,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120)
                 .build();
-        filmController.create(film);
+        inMemoryFilmStorage.createFilm(film);
 
         Film film1 = Film.builder()
                 .name("name1")
@@ -32,9 +43,9 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2001, 1, 1))
                 .duration(130)
                 .build();
-        filmController.create(film1);
+        inMemoryFilmStorage.createFilm(film1);
 
-        Map<Long, Film> films = filmController.getFilms();
+        Map<Long, Film> films = inMemoryFilmStorage.getFilms();
 
         assertEquals(2, films.size());
     }
@@ -47,7 +58,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120)
                 .build();
-        filmController.create(film);
+        inMemoryFilmStorage.createFilm(film);
 
         Film film1 = Film.builder()
                 .name("new name")
@@ -58,9 +69,9 @@ public class FilmControllerTest {
                 .build();
 
 
-        filmController.update(film1);
+        inMemoryFilmStorage.updateFilm(film1);
 
-        Film updatedFilm = filmController.findAll().getFirst();
+        Film updatedFilm = inMemoryFilmStorage.findAllFilm().getFirst();
 
         assertEquals("new name", updatedFilm.getName());
         assertEquals("new description", updatedFilm.getDescription());
@@ -77,7 +88,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120)
                 .build();
-        filmController.create(film);
+        inMemoryFilmStorage.createFilm(film);
 
         Film film1 = Film.builder()
                 .name("a")
@@ -85,7 +96,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2001, 1, 1))
                 .duration(130)
                 .build();
-        filmController.create(film1);
+        inMemoryFilmStorage.createFilm(film1);
 
         Film film2 = Film.builder()
                 .name("a")
@@ -93,9 +104,9 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1990, 1, 1))
                 .duration(130)
                 .build();
-        filmController.create(film2);
+        inMemoryFilmStorage.createFilm(film2);
 
-        List<Film> films = filmController.findAll();
+        List<Film> films = inMemoryFilmStorage.findAllFilm();
 
         assertEquals(3, films.size());
 

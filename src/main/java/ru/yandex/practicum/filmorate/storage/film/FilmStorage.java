@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface FilmStorage {
 
-    List<Film> findAll();
+    List<Film> findAllFilm();
+
+    Film findFilm(long id);
 
     Film createFilm(Film newFilm);
 
