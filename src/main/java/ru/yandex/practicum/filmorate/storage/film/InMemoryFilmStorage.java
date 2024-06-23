@@ -49,7 +49,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film updateFilm(Film newFilm) {
         if (films.get(newFilm.getId()) == null) {
             log.warn("Невозможно обновить фильм");
-            throw new ValidationException("Невозможно обновить фильм");
+            throw new NotFoundException("Такого фильма нет");
         }
 
         Long id = newFilm.getId();
@@ -70,9 +70,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private void updateFields(Film oldFilm, Film newFilm) {
-        if (newFilm.getName() != null) {
-            oldFilm.setName(newFilm.getName());
-        }
+        oldFilm.setName(newFilm.getName());
+
         if (newFilm.getDescription() != null) {
             oldFilm.setDescription(newFilm.getDescription());
         }
@@ -82,6 +81,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (newFilm.getLike() != null) {
             oldFilm.setLike(newFilm.getLike());
         }
+
+        oldFilm.setReleaseDate(newFilm.getReleaseDate());
     }
 
     private boolean isReleaseDate(LocalDate releaseDate) {

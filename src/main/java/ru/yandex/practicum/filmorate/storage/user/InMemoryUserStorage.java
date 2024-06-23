@@ -16,7 +16,7 @@ import java.util.*;
 @Getter
 public class InMemoryUserStorage implements UserStorage {
 
-    protected final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
 
 
     @Override

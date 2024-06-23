@@ -4,13 +4,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -60,5 +60,15 @@ public class FilmService {
         List<Film> sortFilm = filmStorage.findAllFilm();
         sortFilm.sort((s1, s2) -> s2.getLike().size() - s1.getLike().size());
         return new ArrayList<>(sortFilm.subList(0, Math.min(size, sortFilm.size())));
+    }
+
+    public void deleteLike(long filmId, long userId) {
+        if (userStorage.findUser(userId) == null) {
+            throw new NotFoundException("Такого пользователя нет");
+        }
+        Film film = filmStorage.findFilm(filmId);
+        film.getLike().remove(userId);
+        updateFilm(film);
+        log.info("Пользователь {} удали лайк из фильма {}", userStorage.findUser(userId), film.getName());
     }
 }

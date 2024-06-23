@@ -52,4 +52,9 @@ public class FilmController {
     public List<Film> findTopRatedFilms(@RequestParam(defaultValue = "10") final int size) {
         return filmService.popular(size);
     }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.deleteLike(id, userId);
+    }
 }
