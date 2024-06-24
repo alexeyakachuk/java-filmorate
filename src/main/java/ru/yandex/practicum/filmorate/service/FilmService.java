@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -27,7 +26,6 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
-
     public List<Film> findAllFilm() {
         return filmStorage.findAllFilm();
     }
@@ -35,7 +33,6 @@ public class FilmService {
     public Film findFilm(long id) {
         return filmStorage.findFilm(id);
     }
-
 
     public Film createFilm(Film newFilm) {
         return filmStorage.createFilm(newFilm);
@@ -46,11 +43,14 @@ public class FilmService {
     }
 
     public void addLike(long filmId, long userId) {
+        if (userStorage.findUser(userId) == null) {
+            throw new NotFoundException("Такого пользователя нет");
+        }
         Film film = findFilm(filmId);
         Set<Long> like = film.getLike();
         like.add(userId);
         updateFilm(film);
-        log.info("Пользователь {} лайкнул фильм {}", userStorage.findUser(userId), film.getName());
+        log.info("Пользователь с id {} лайкнул фильм {}", userId, film.getName());
     }
 
     public List<Film> popular(int size) {
@@ -66,6 +66,6 @@ public class FilmService {
         Film film = filmStorage.findFilm(filmId);
         film.getLike().remove(userId);
         updateFilm(film);
-        log.info("Пользователь {} удали лайк из фильма {}", userStorage.findUser(userId), film.getName());
+        log.info("Пользователь с id {} удали лайк из фильма {}", userId, film.getName());
     }
 }

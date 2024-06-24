@@ -63,12 +63,6 @@ public class UserService {
     public void deleteFromFriendList(long userId, long friendId) {
         User user = findUser(userId);
         User friendUser = findUser(friendId);
-        if (user.getFriends().isEmpty()) {
-            getFriendCount(userId);
-        }
-        if (friendUser.getFriends().isEmpty()) {
-            getFriendCount(friendId);
-        }
 
         user.getFriends().remove(friendId);
         friendUser.getFriends().remove(userId);
@@ -92,10 +86,5 @@ public class UserService {
             }
         }
         return mutualFriends;
-    }
-
-    private long getFriendCount(long id) {
-        long friendCount = userStorage.findUser(id).getFriends().size();
-        return friendCount;
     }
 }

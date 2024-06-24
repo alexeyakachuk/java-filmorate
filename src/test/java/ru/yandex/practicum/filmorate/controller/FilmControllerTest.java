@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
@@ -16,16 +15,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
 
-
     private FilmController filmController;
-    private UserController userController;
+    private InMemoryUserStorage inMemoryUserStorage;
 
 
     @BeforeEach
     public void beforeEach() {
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), userStorage));
-        userController = new UserController(new UserService(userStorage));
+        this.inMemoryUserStorage = new InMemoryUserStorage();
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), inMemoryUserStorage));
     }
 
     @Test
@@ -118,16 +115,14 @@ public class FilmControllerTest {
 
     @Test
     void addLikeTest() {
-        // Создание тестового пользователя
         User user = User.builder()
                 .name("name")
                 .login("login")
                 .birthday(LocalDate.of(1989, 10, 17))
                 .email("email@yandex.ru").build();
-        userController.create(user);
-        long userId = user.getId(); // Получение ID созданного пользователя
+        inMemoryUserStorage.createUser(user);
+        long userId = user.getId();
 
-        // Создание тестового фильма
         Film film = Film.builder()
                 .name("Фильм")
                 .description("Описание")
@@ -137,10 +132,8 @@ public class FilmControllerTest {
         filmController.create(film);
         long filmId = film.getId();
 
-        // Добавление лайка к фильму от пользователя
         filmController.addLike(filmId, userId);
 
-        // Проверка, что лайк добавлен
         Film updatedFilm = filmController.find(filmId);
         assertTrue(updatedFilm.getLike().contains(userId));
     }
@@ -152,7 +145,7 @@ public class FilmControllerTest {
                 .login("login")
                 .birthday(LocalDate.of(1989, 10, 17))
                 .email("email@yandex.ru").build();
-        userController.create(user);
+        inMemoryUserStorage.createUser(user);
         long userId = user.getId();
 
         Film film = Film.builder()
@@ -163,7 +156,7 @@ public class FilmControllerTest {
                 .build();
         filmController.create(film);
         long filmId = film.getId();
-         // предполагаем, что пользователь с таким ID существует
+
         filmController.addLike(filmId, userId);
         filmController.deleteLike(filmId, userId);
 
@@ -178,7 +171,7 @@ public class FilmControllerTest {
                 .login("login")
                 .birthday(LocalDate.of(1989, 10, 17))
                 .email("email@yandex.ru").build();
-        userController.create(user);
+        inMemoryUserStorage.createUser(user);
         long userId = user.getId();
 
         Film film1 = Film.builder()
@@ -199,7 +192,6 @@ public class FilmControllerTest {
         filmController.create(film2);
         long filmId2 = film2.getId();
 
-         // предполагаем, что пользователь с таким ID существует
         filmController.addLike(filmId1, userId);
         filmController.addLike(filmId2, userId);
 

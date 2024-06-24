@@ -12,7 +12,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-   // private final Map<Long, User> users = new HashMap<>();
+
     private  UserController userController;
 
     @BeforeEach
@@ -41,7 +41,6 @@ public class UserControllerTest {
 
         assertEquals(2, users.size());
         assertEquals("login", name);
-
     }
 
     @Test
@@ -171,12 +170,11 @@ public class UserControllerTest {
         userController.addFriend(user1.getId(), user2.getId());
         userController.addFriend(user1.getId(), user3.getId());
 
-        userController.addFriend(user2.getId(), user1.getId());
         userController.addFriend(user2.getId(), user3.getId());
 
         List<User> mutualFriends = userController.findMutualFriends(user1.getId(), user2.getId());
-        assertTrue(mutualFriends.contains(user3));
         assertEquals(1, mutualFriends.size());
+        assertTrue(mutualFriends.contains(user3));
     }
 }
 
