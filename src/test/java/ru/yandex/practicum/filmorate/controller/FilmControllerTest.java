@@ -3,24 +3,29 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
 
 
     private FilmController filmController;
+    private UserController userController;
+
 
     @BeforeEach
     public void beforeEach() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(),
-                new InMemoryUserStorage()));
+        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), userStorage));
+        userController = new UserController(new UserService(userStorage));
     }
 
     @Test
@@ -109,5 +114,96 @@ public class FilmControllerTest {
 
         assertEquals(newListFilm, films);
 
+    }
+
+    @Test
+    void addLikeTest() {
+        // Создание тестового пользователя
+        User user = User.builder()
+                .name("name")
+                .login("login")
+                .birthday(LocalDate.of(1989, 10, 17))
+                .email("email@yandex.ru").build();
+        userController.create(user);
+        long userId = user.getId(); // Получение ID созданного пользователя
+
+        // Создание тестового фильма
+        Film film = Film.builder()
+                .name("Фильм")
+                .description("Описание")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(100)
+                .build();
+        filmController.create(film);
+        long filmId = film.getId();
+
+        // Добавление лайка к фильму от пользователя
+        filmController.addLike(filmId, userId);
+
+        // Проверка, что лайк добавлен
+        Film updatedFilm = filmController.find(filmId);
+        assertTrue(updatedFilm.getLike().contains(userId));
+    }
+
+    @Test
+    void deleteLikeTest() {
+        User user = User.builder()
+                .name("name")
+                .login("login")
+                .birthday(LocalDate.of(1989, 10, 17))
+                .email("email@yandex.ru").build();
+        userController.create(user);
+        long userId = user.getId();
+
+        Film film = Film.builder()
+                .name("Фильм")
+                .description("Описание")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(100)
+                .build();
+        filmController.create(film);
+        long filmId = film.getId();
+         // предполагаем, что пользователь с таким ID существует
+        filmController.addLike(filmId, userId);
+        filmController.deleteLike(filmId, userId);
+
+        Film updatedFilm = filmController.find(filmId);
+        assertFalse(updatedFilm.getLike().contains(userId));
+    }
+
+    @Test
+    void findTopRatedFilmsTest() {
+        User user = User.builder()
+                .name("name")
+                .login("login")
+                .birthday(LocalDate.of(1989, 10, 17))
+                .email("email@yandex.ru").build();
+        userController.create(user);
+        long userId = user.getId();
+
+        Film film1 = Film.builder()
+                .name("Фильм 1")
+                .description("Описание 1")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(100)
+                .build();
+        filmController.create(film1);
+        long filmId1 = film1.getId();
+
+        Film film2 = Film.builder()
+                .name("Фильм 2")
+                .description("Описание 2")
+                .releaseDate(LocalDate.of(2021, 1, 1))
+                .duration(110)
+                .build();
+        filmController.create(film2);
+        long filmId2 = film2.getId();
+
+         // предполагаем, что пользователь с таким ID существует
+        filmController.addLike(filmId1, userId);
+        filmController.addLike(filmId2, userId);
+
+        List<Film> topRatedFilms = filmController.findTopRatedFilms(10);
+        assertTrue(topRatedFilms.contains(film1) && topRatedFilms.contains(film2));
     }
 }

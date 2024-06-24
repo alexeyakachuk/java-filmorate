@@ -47,11 +47,8 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         Film film = findFilm(filmId);
-        // спросить если смысл в этой записи
-        User user = userStorage.findUser(userId);
         Set<Long> like = film.getLike();
-        // можно так like.add(userId)
-        like.add(user.getId());
+        like.add(userId);
         updateFilm(film);
         log.info("Пользователь {} лайкнул фильм {}", userStorage.findUser(userId), film.getName());
     }

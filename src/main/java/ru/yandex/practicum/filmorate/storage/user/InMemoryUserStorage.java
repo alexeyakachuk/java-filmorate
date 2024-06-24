@@ -27,8 +27,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User findUser(long id) {
+        System.out.println(findAllUsers());
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователя с таким id " + id + " нет");
+
         }
         return users.get(id);
     }
