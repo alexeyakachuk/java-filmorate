@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 
 @Slf4j
@@ -34,12 +32,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film newFilm) {
-        validate(newFilm);
-
         newFilm.setLike(new HashSet<>());
 
         long nextId = getNextId();
-        newFilm.setId(getNextId());
+        newFilm.setId(nextId);
         films.put(newFilm.getId(), newFilm);
         log.info("Создан фильм с id {}", nextId);
         return newFilm;
@@ -56,7 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         Film oldFilm = films.get(id);
 
         checkId(newFilm);
-        validate(newFilm);
+
         updateFields(oldFilm, newFilm);
         films.put(id, oldFilm);
         log.info("Фильм с id {} обновлен", id);
@@ -83,23 +79,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
 
         oldFilm.setReleaseDate(newFilm.getReleaseDate());
-    }
-
-    private boolean isReleaseDate(LocalDate releaseDate) {
-        LocalDate earliestDate = LocalDate.of(1895, Month.DECEMBER, 28);
-        return !releaseDate.isBefore(earliestDate);
-    }
-
-    private void validate(Film newFilm) {
-        try {
-            LocalDate releaseDate = newFilm.getReleaseDate();
-            if (!isReleaseDate(releaseDate)) {
-                throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
-            }
-        } catch (ValidationException e) {
-            log.warn(e.getMessage());
-            throw e;
-        }
     }
 
     private long getNextId() {

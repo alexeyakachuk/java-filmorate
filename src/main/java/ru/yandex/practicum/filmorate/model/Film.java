@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.myAnnotation.annotation.AfterOrEqualData;
+
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -22,6 +24,7 @@ public class Film {
     @Size(max = 200, message = "Не более 200 символов")
     private String description;
     @NotNull
+    @AfterOrEqualData
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
