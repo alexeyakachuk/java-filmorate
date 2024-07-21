@@ -29,6 +29,6 @@ public class Film {
     @Min(1)
     private int duration;
     @NotNull
-    private int mpaId;
+    private Set<Integer> mpaId;
     private Set<Long> like;
 }
