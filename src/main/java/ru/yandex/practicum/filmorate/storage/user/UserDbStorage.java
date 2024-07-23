@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,6 +19,7 @@ import java.util.List;
 @Repository
 @Qualifier("H2UserStorage")
 @RequiredArgsConstructor
+@Slf4j
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -42,19 +44,19 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User newUser) {
-        //log.info("Создание нового пользователя: {}", user);
+        log.info("Создание нового пользователя: {}", newUser);
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        MapSqlParameterSource map = new MapSqlParameterSource();
-        map.addValue("email", newUser.getEmail());
-        map.addValue("login", newUser.getLogin());
-        map.addValue("name", newUser.getName());
-        map.addValue("birthday", newUser.getBirthday());
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", newUser.getEmail());
+        params.addValue("login", newUser.getLogin());
+        params.addValue("name", newUser.getName());
+        params.addValue("birthday", newUser.getBirthday());
 
         jdbcOperations.update(
                 "INSERT INTO users(email, login, name, birthday) VALUES (:email, :login, :name, :birthday)",
-                map, keyHolder);
+                params, keyHolder);
 
-        //log.info("Пользователь {} сохранен", user);
+        log.info("Пользователь {} сохранен", newUser);
 
 
         return jdbcTemplate.queryForObject("SELECT * FROM users WHERE ID = ?", mapper, keyHolder.getKey().longValue());
