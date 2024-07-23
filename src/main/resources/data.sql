@@ -29,3 +29,11 @@ INSERT INTO GENRES (NAME)
 VALUES ('Романтика');
 INSERT INTO GENRES (NAME)
 VALUES ('Фантастика');
+
+-- Добавление первого пользователя
+INSERT INTO USERS (email, login, name, birthday)
+VALUES ('john@example.com', 'john_doe', 'John Doe', '1990-05-15');
+
+-- Добавление второго пользователя
+INSERT INTO USERS (email, login, name, birthday)
+VALUES ('jane@example.com', 'jane_smith', 'Jane Smith', '1985-09-22');
