@@ -70,7 +70,6 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.queryForObject("SELECT * FROM users WHERE ID = ?", mapper, newUser.getId());
     }
 
-
     private void checkId(User newUser) {
         if (newUser.getId() == null) {
             throw new ValidationException("Id пользователя должен быть указан");
