@@ -58,7 +58,6 @@ public class UserDbStorage implements UserStorage {
 
         log.info("Пользователь {} сохранен", newUser);
 
-
         return jdbcTemplate.queryForObject("SELECT * FROM users WHERE ID = ?", mapper, keyHolder.getKey().longValue());
     }
 

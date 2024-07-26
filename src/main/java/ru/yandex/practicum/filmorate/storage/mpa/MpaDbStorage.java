@@ -6,11 +6,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mappers.MpaRowMapper;
 import ru.yandex.practicum.filmorate.model.Mpa;
-
 import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
-public class MpaDbStorage implements MpaStorage{
+public class MpaDbStorage implements MpaStorage {
     private final NamedParameterJdbcOperations jdbcOperations;
     private final MpaRowMapper mapper;
 

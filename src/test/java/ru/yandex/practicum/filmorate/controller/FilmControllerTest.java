@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -19,11 +20,12 @@ public class FilmControllerTest {
     private InMemoryUserStorage inMemoryUserStorage;
 
 
-    @BeforeEach
-    public void beforeEach() {
-        this.inMemoryUserStorage = new InMemoryUserStorage();
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), inMemoryUserStorage));
-    }
+//    @BeforeEach
+//    public void beforeEach() {
+//        this.inMemoryUserStorage = new InMemoryUserStorage();
+//        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), inMemoryUserStorage,
+//                new GenreDbStorage(null, null)));
+//    }
 
     @Test
     void createTest() {
