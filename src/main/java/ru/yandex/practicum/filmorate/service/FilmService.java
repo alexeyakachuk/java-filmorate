@@ -112,15 +112,15 @@ public class FilmService {
             throw new NotFoundException("Такого пользователя нет");
         }
         Film film = findFilm(filmId);
-        Set<Long> like = film.getLike();
-        like.add(userId);
+        Set<Long> likes = film.getLikes();
+        likes.add(userId);
         updateFilm(film);
         log.info("Пользователь с id {} лайкнул фильм {}", userId, film.getName());
     }
 
     public List<Film> popular(int size) {
         List<Film> sortFilm = filmStorage.findAllFilm();
-        sortFilm.sort((s1, s2) -> s2.getLike().size() - s1.getLike().size());
+        sortFilm.sort((s1, s2) -> s2.getLikes().size() - s1.getLikes().size());
         return new ArrayList<>(sortFilm.subList(0, Math.min(size, sortFilm.size())));
     }
 
@@ -129,7 +129,7 @@ public class FilmService {
             throw new NotFoundException("Такого пользователя нет");
         }
         Film film = filmStorage.findFilm(filmId);
-        film.getLike().remove(userId);
+        film.getLikes().remove(userId);
         updateFilm(film);
         log.info("Пользователь с id {} удали лайк из фильма {}", userId, film.getName());
     }

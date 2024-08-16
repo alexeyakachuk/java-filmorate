@@ -32,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film newFilm) {
-        newFilm.setLike(new HashSet<>());
+        newFilm.setLikes(new HashSet<>());
 
         long nextId = getNextId();
         newFilm.setId(nextId);
@@ -74,8 +74,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (newFilm.getDuration() != 0) {
             oldFilm.setDuration(newFilm.getDuration());
         }
-        if (newFilm.getLike() != null) {
-            oldFilm.setLike(newFilm.getLike());
+        if (newFilm.getLikes() != null) {
+            oldFilm.setLikes(newFilm.getLikes());
         }
 
         oldFilm.setReleaseDate(newFilm.getReleaseDate());

@@ -1,12 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -137,7 +133,7 @@ public class FilmControllerTest {
         filmController.addLike(filmId, userId);
 
         Film updatedFilm = filmController.find(filmId);
-        assertTrue(updatedFilm.getLike().contains(userId));
+        assertTrue(updatedFilm.getLikes().contains(userId));
     }
 
     @Test
@@ -163,7 +159,7 @@ public class FilmControllerTest {
         filmController.deleteLike(filmId, userId);
 
         Film updatedFilm = filmController.find(filmId);
-        assertFalse(updatedFilm.getLike().contains(userId));
+        assertFalse(updatedFilm.getLikes().contains(userId));
     }
 
     @Test
