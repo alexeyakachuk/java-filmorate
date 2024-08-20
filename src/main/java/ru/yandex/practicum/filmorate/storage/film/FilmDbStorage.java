@@ -44,23 +44,23 @@ public class FilmDbStorage implements FilmStorage {
 
     }
 
-//    @Override
-//    public Film findFilm(long id) {
-//        String query = "SELECT * FROM films WHERE id = :id";
-//        MapSqlParameterSource params = new MapSqlParameterSource();
-//        params.addValue("id", id);
-//        Film film = jdbcOperations.queryForObject(query, params, mapper);
-//
-//        if (film == null) {
-//            throw new NotFoundException("Фильм с id " + id + " не найден");
-//        }
-//
-//        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
-//        String sql = "SELECT genres.* FROM film_genre JOIN genres ON film_genre.genre_id = genres.id WHERE film_genre.film_id = :id;";
-//        List<Genre> genreList = jdbcOperations.query(sql, params, genreRowMapper);
-//        film.setGenres(new HashSet<>(genreList));
-//        return film;
-//    }
+    @Override
+    public Film findFilm(long id) {
+        String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = :id;";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", id);
+        Film film = jdbcOperations.queryForObject(query, params, mapper);
+
+        if (film == null) {
+            throw new NotFoundException("Фильм с id " + id + " не найден");
+        }
+
+        String sql = "SELECT genres.* FROM film_genre JOIN genres ON film_genre.genre_id = genres.id " +
+                "WHERE film_genre.film_id = :id";
+        List<Genre> genreList = jdbcOperations.query(sql, params, genreRowMapper);
+        film.setGenres(new HashSet<>(genreList));
+        return film;
+    }
 
 //    @Override
 //    public Film findFilm(long id) {
@@ -72,14 +72,20 @@ public class FilmDbStorage implements FilmStorage {
 //        }
 //    }
 
-    @Override
-    public Film findFilm(long id) {
-        String query = "SELECT * FROM films WHERE id = ?";
-        try {
-            return jdbcTemplate.queryForObject(query, mapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+//    @Override
+//    public Film findFilm(long id) {
+//        String query = "SELECT * FROM films WHERE id = ?";
+//
+//        try {
+//            return jdbcTemplate.queryForObject(query, mapper, id);
+//        } catch (EmptyResultDataAccessException e) {
+//            return null;
+//        }
+//    }
+
+
+    public void addLike(long filmId, long userId) {
+        
     }
 
 
@@ -149,6 +155,8 @@ public class FilmDbStorage implements FilmStorage {
 
         return createdFilm;
     }
+
+
 
     @Override
     public Film updateFilm(Film newFilm) {
