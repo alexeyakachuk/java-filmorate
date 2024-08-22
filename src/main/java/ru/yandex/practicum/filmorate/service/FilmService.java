@@ -111,11 +111,13 @@ public class FilmService {
         if (userStorage.findUser(userId) == null) {
             throw new NotFoundException("Такого пользователя нет");
         }
-        Film film = findFilm(filmId);
-        Set<Long> likes = film.getLikes();
-        likes.add(userId);
-        updateFilm(film);
-        log.info("Пользователь с id {} лайкнул фильм {}", userId, film.getName());
+
+        if (filmStorage.findFilm(filmId) == null) {
+            throw new NotFoundException("Такого фильма нет");
+        }
+
+        filmStorage.addLike(filmId, userId);
+        log.info("Пользователь с id {} лайкнул фильм {}", userId, filmId);
     }
 
     public List<Film> popular(int size) {

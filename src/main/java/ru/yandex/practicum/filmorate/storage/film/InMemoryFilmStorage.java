@@ -14,6 +14,11 @@ import java.util.*;
 @Getter
 public class InMemoryFilmStorage implements FilmStorage {
 
+    @Override
+    public void addLike(long filmId, long userId) {
+
+    }
+
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override

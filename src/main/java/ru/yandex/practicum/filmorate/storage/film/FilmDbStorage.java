@@ -17,10 +17,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.sql.ResultSet;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -46,7 +44,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film findFilm(long id) {
-        String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = :id;";
+        String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         Film film = jdbcOperations.queryForObject(query, params, mapper);
@@ -59,35 +57,30 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE film_genre.film_id = :id";
         List<Genre> genreList = jdbcOperations.query(sql, params, genreRowMapper);
         film.setGenres(new HashSet<>(genreList));
+
+        String sqlLike = "SELECT user_id FROM likes " +
+                "WHERE film_id = :id";
+
+
+        List<Long> userLikes = jdbcOperations.queryForList(sqlLike, params, Long.class);
+
+        film.setLikes(new HashSet<>(userLikes));
+
         return film;
     }
 
-//    @Override
-//    public Film findFilm(long id) {
-//        String query = "SELECT * FROM films WHERE ID = ?";
-//        if (jdbcTemplate.query(query, mapper, id).isEmpty()) {
-//            return null;
-//        } else {
-//            return jdbcTemplate.queryForObject(query, mapper, id);
-//        }
-//    }
-
-//    @Override
-//    public Film findFilm(long id) {
-//        String query = "SELECT * FROM films WHERE id = ?";
-//
-//        try {
-//            return jdbcTemplate.queryForObject(query, mapper, id);
-//        } catch (EmptyResultDataAccessException e) {
-//            return null;
-//        }
-//    }
 
 
     public void addLike(long filmId, long userId) {
-        
-    }
 
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("filmId", filmId);
+        params.addValue("userId", userId);
+        jdbcOperations.update(
+                "MERGE INTO likes (film_id, user_id) " +
+                        "VALUES (:filmId, :userId)", params);
+
+    }
 
 
     @Override
@@ -107,10 +100,6 @@ public class FilmDbStorage implements FilmStorage {
                 params, keyHolder);
 
         long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
-
-        // Очистка предыдущих записей о жанрах, если они есть (не обязательно для create, но полезно для update)
-//        jdbcOperations.update("DELETE FROM film_genre WHERE film_id = :film_id",
-//                new MapSqlParameterSource("film_id", filmId));
 
         // Вставка жанров в таблицу FILM_GENRE, если они есть
         if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
@@ -157,7 +146,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-
     @Override
     public Film updateFilm(Film newFilm) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -174,7 +162,6 @@ public class FilmDbStorage implements FilmStorage {
                 "UPDATE films SET name = :name, description = :description, release_date = :release_date, duration = :duration, mpa_id = :mpa_id " +
                         "WHERE id = :id",
                 params);
-
 
 
         // Вставка жанров в таблицу FILM_GENRE
