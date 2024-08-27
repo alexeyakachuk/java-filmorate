@@ -19,6 +19,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     }
 
+    @Override
+    public void deleteLike(long filmId, long userId) {
+
+    }
+
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override

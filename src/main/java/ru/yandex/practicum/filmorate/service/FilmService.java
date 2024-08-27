@@ -36,40 +36,6 @@ public class FilmService {
         this.filmAndGenreStorage = filmAndGenreStorage;
     }
 
-//    public List<Film> findAllFilm() {
-//        List<Genre> allGenre = genreStorage.findAll();
-//        List<Film> allFilm = filmStorage.findAllFilm();
-//        List<FilmAndGenre> allFilmsAndGenre = filmAndGenreStorage.findAllFilmsAndGenre();
-//
-//        for (FilmAndGenre filmAndGenre : allFilmsAndGenre) {
-//            long filmId = filmAndGenre.getFilmId();
-//            int genreId = filmAndGenre.getGenreId();
-//
-//        }
-//
-//        return allFilm;
-//    }
-
-//    public List<Film> findAllFilm() {
-//        List<Genre> allGenre = genreStorage.findAll();
-//        List<Film> allFilm = filmStorage.findAllFilm();
-//        List<FilmAndGenre> allFilmsAndGenre = filmAndGenreStorage.findAllFilmsAndGenre();
-//
-//        Map<Long, List<Genre>> filmGenres = new HashMap<>();
-//        for (FilmAndGenre filmAndGenre : allFilmsAndGenre) {
-//            long filmId = filmAndGenre.getFilmId();
-//            int genreId = filmAndGenre.getGenreId();
-//            Genre genre = allGenre.stream()
-//                    .filter(g -> g.getId() == genreId)
-//                    .findFirst()
-//                    .orElseThrow(() -> new RuntimeException("Жанр не найден"));
-//            filmGenres.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);
-//        }
-//
-//        allFilm.forEach(film -> film.setGenres((Set<Genre>) filmGenres.getOrDefault(film.getId(), Collections.emptyList())));
-//        return allFilm;
-//    }
-//
     public List<Film> findAllFilm() {
         List<Genre> allGenre = genreStorage.findAll();
         List<Film> allFilm = filmStorage.findAllFilm();
@@ -131,8 +97,15 @@ public class FilmService {
             throw new NotFoundException("Такого пользователя нет");
         }
         Film film = filmStorage.findFilm(filmId);
+
+        if (film == null) {
+            throw new NotFoundException("Такого фильма нет");
+        }
+
+        filmStorage.deleteLike(filmId, userId);
+
         film.getLikes().remove(userId);
-        updateFilm(film);
+
         log.info("Пользователь с id {} удали лайк из фильма {}", userId, film.getName());
     }
 }

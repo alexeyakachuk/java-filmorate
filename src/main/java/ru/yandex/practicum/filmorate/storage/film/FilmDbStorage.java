@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -17,7 +16,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
-import java.sql.ResultSet;
 import java.util.*;
 
 @Repository
@@ -37,6 +35,19 @@ public class FilmDbStorage implements FilmStorage {
         String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id;";
 
         List<Film> films = jdbcOperations.query(query, mapper);
+
+
+        for (Film film : films) {
+            Long id = film.getId();
+            String sqlLike = "SELECT user_id FROM likes " +
+                    "WHERE film_id = :id";
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("id", id);
+
+            List<Long> userLikes = jdbcOperations.queryForList(sqlLike, params, Long.class);
+
+            film.setLikes(new HashSet<>(userLikes));
+        }
 
         return films;
 
@@ -70,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-
+    @Override
     public void addLike(long filmId, long userId) {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -79,6 +90,15 @@ public class FilmDbStorage implements FilmStorage {
         jdbcOperations.update(
                 "MERGE INTO likes (film_id, user_id) " +
                         "VALUES (:filmId, :userId)", params);
+    }
+
+    @Override
+    public void deleteLike(long filmId, long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("filmId", filmId);
+        params.addValue("userId", userId);
+
+        jdbcOperations.update("DELETE FROM likes WHERE film_id = :filmId AND user_id = :userId", params);
 
     }
 
@@ -111,17 +131,6 @@ public class FilmDbStorage implements FilmStorage {
                                 .addValue("genre_id", genre.getId()));
             }
         }
-
-        // Вставка лайков в таблицу LIKES, если они есть
-//        if (newFilm.getLikes() != null && !newFilm.getLikes().isEmpty()) {
-//            for (Long userId : newFilm.getLikes()) {
-//                jdbcOperations.update(
-//                        "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)",
-//                        new MapSqlParameterSource()
-//                                .addValue("film_id", filmId)
-//                                .addValue("user_id", userId));
-//            }
-//        }
 
         // Возврат созданного фильма с JOIN, чтобы получить данные по MPA
         String sql = "SELECT films.*, mpa.name AS mpa_name " +
@@ -193,3 +202,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 }
 
+
+
+//SELECT f.*, COUNT(l.user_id) AS like_count
+//FROM films f
+//LEFT JOIN likes l ON f.film_id = l.film_id
+//GROUP BY f.film_id
+//ORDER BY like_count DESC
+//LIMIT 10;

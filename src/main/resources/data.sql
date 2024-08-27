@@ -52,4 +52,6 @@ VALUES (1, 1); -- жанр "Драма" для фильма "Собачье се
 
 -- Добавление жанра для второго фильма
 INSERT INTO FILM_GENRE (film_id, genre_id)
-VALUES (2, 4); -- жанр "Драма" для фильма "Левиафан"
+VALUES (2, 4);
+INSERT INTO FILM_GENRE (film_id, genre_id)
+VALUES (2, 1); -- жанр "Драма" для фильма "Левиафан"
