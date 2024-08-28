@@ -54,6 +54,32 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getPopularFilms(long size) {
+        // Создаем параметры для запроса
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("size", size);
+
+        // Определяем SQL-запрос для получения популярных фильмов с количеством лайков
+        String sql = "SELECT films.*, COUNT(likes.user_id) AS like_count, mpa.name " +
+                "FROM films " +
+                "JOIN mpa ON films.mpa_id = mpa.id " +
+                "LEFT JOIN likes ON films.id = likes.film_id " +
+                "GROUP BY films.id, mpa.name " +
+                "ORDER BY like_count DESC " +
+                "LIMIT :size";
+
+        // Выполняем запрос и получаем результаты
+        List<Film> films = jdbcOperations.query(sql, params, mapper);
+
+        // Обработка случаев, когда список фильмов пуст
+        if (films.isEmpty()) {
+            log.info("Нет популярных фильмов для отображения");
+        }
+
+        return films;
+    }
+
+    @Override
     public Film findFilm(long id) {
         String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -101,6 +127,8 @@ public class FilmDbStorage implements FilmStorage {
         jdbcOperations.update("DELETE FROM likes WHERE film_id = :filmId AND user_id = :userId", params);
 
     }
+
+
 
 
     @Override
@@ -200,13 +228,9 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcOperations.queryForObject(sql,
                 new MapSqlParameterSource("id", filmId), mapper);
     }
+
+
 }
 
 
 
-//SELECT f.*, COUNT(l.user_id) AS like_count
-//FROM films f
-//LEFT JOIN likes l ON f.film_id = l.film_id
-//GROUP BY f.film_id
-//ORDER BY like_count DESC
-//LIMIT 10;
