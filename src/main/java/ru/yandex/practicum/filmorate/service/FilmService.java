@@ -44,7 +44,13 @@ public class FilmService {
     }
 
     public Film findFilm(long id) {
-        return filmStorage.findFilm(id);
+        Film film = filmStorage.findFilm(id);
+        //находим likeStorage.findLikes
+        //также mpa
+        //жанры
+        List<Genre> genres = genreStorage.findByFilmId(id);
+        film.setGenres(new HashSet<>(genres));
+        return film;
     }
 
     public Film createFilm(Film newFilm) {

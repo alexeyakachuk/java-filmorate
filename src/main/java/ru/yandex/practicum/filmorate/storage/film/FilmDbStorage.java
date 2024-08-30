@@ -92,10 +92,10 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с id " + id + " не найден");
         }
 
-        String sql = "SELECT genres.* FROM film_genre JOIN genres ON film_genre.genre_id = genres.id " +
-                "WHERE film_genre.film_id = :id";
-        List<Genre> genreList = jdbcOperations.query(sql, params, genreRowMapper);
-        film.setGenres(new HashSet<>(genreList));
+//        String sql = "SELECT genres.* FROM film_genre JOIN genres ON film_genre.genre_id = genres.id " +
+//                "WHERE film_genre.film_id = :id";
+//        List<Genre> genreList = jdbcOperations.query(sql, params, genreRowMapper);
+//        film.setGenres(new HashSet<>(genreList));
 
         String sqlLike = "SELECT user_id FROM likes " +
                 "WHERE film_id = :id";
