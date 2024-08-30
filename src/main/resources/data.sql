@@ -9,26 +9,39 @@ VALUES ('R');
 INSERT INTO MPA (NAME)
 VALUES ('NC-17');
 
+--INSERT INTO GENRES (NAME)
+--VALUES ('Комедия');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Драма');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Мультфильмы');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Триллер');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Боевик');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Документальный');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Ужасы');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Мистика');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Романтика');
+--INSERT INTO GENRES (NAME)
+--VALUES ('Фантастика');
+
 INSERT INTO GENRES (NAME)
 VALUES ('Комедия');
 INSERT INTO GENRES (NAME)
 VALUES ('Драма');
 INSERT INTO GENRES (NAME)
-VALUES ('Мультфильмы');
+VALUES ('Мультфильм');
 INSERT INTO GENRES (NAME)
 VALUES ('Триллер');
 INSERT INTO GENRES (NAME)
-VALUES ('Боевик');
-INSERT INTO GENRES (NAME)
 VALUES ('Документальный');
 INSERT INTO GENRES (NAME)
-VALUES ('Ужасы');
-INSERT INTO GENRES (NAME)
-VALUES ('Мистика');
-INSERT INTO GENRES (NAME)
-VALUES ('Романтика');
-INSERT INTO GENRES (NAME)
-VALUES ('Фантастика');
+VALUES ('Боевик');
 
 -- Добавление первого пользователя
 INSERT INTO USERS (email, login, name, birthday)

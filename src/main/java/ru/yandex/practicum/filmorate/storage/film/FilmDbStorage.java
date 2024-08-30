@@ -36,19 +36,6 @@ public class FilmDbStorage implements FilmStorage {
 
         List<Film> films = jdbcOperations.query(query, mapper);
 
-
-        for (Film film : films) {
-            Long id = film.getId();
-            String sqlLike = "SELECT user_id FROM likes " +
-                    "WHERE film_id = :id";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("id", id);
-
-            List<Long> userLikes = jdbcOperations.queryForList(sqlLike, params, Long.class);
-
-            film.setLikes(new HashSet<>(userLikes));
-        }
-
         return films;
 
     }
@@ -76,7 +63,22 @@ public class FilmDbStorage implements FilmStorage {
             log.info("Нет популярных фильмов для отображения");
         }
 
+
         return films;
+    }
+
+    public void fetchAndSetFilmLikes(List<Film> films) {
+        for (Film film : films) {
+            Long id = film.getId();
+            String sqlLike = "SELECT user_id FROM likes " +
+                    "WHERE film_id = :id";
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("id", id);
+
+            List<Long> userLikes = jdbcOperations.queryForList(sqlLike, params, Long.class);
+
+            film.setLikes(new HashSet<>(userLikes));
+        }
     }
 
     @Override
@@ -127,8 +129,6 @@ public class FilmDbStorage implements FilmStorage {
         jdbcOperations.update("DELETE FROM likes WHERE film_id = :filmId AND user_id = :userId", params);
 
     }
-
-
 
 
     @Override
@@ -182,55 +182,110 @@ public class FilmDbStorage implements FilmStorage {
         return createdFilm;
     }
 
-
     @Override
-    public Film updateFilm(Film newFilm) {
+    public Film updateFilm(Film updatedFilm) {
+        // Обновление информации о фильме в таблице FILMS
+        String updateFilmSql = "UPDATE films SET name = :name, description = :description, " +
+                "release_date = :release_date, duration = :duration, mpa_id = :mpa_id " +
+                "WHERE id = :id";
+
         MapSqlParameterSource params = new MapSqlParameterSource();
-        Long filmId = newFilm.getId();
-        params.addValue("id", filmId);
-        params.addValue("name", newFilm.getName());
-        params.addValue("description", newFilm.getDescription());
-        params.addValue("release_date", newFilm.getReleaseDate());
-        params.addValue("duration", newFilm.getDuration());
-        params.addValue("mpa_id", newFilm.getMpa().getId());
+        params.addValue("id", updatedFilm.getId());
+        params.addValue("name", updatedFilm.getName());
+        params.addValue("description", updatedFilm.getDescription());
+        params.addValue("release_date", updatedFilm.getReleaseDate());
+        params.addValue("duration", updatedFilm.getDuration());
+        params.addValue("mpa_id", updatedFilm.getMpa().getId());
 
-        // Вставка фильма в таблицу FILMS
-        jdbcOperations.update(
-                "UPDATE films SET name = :name, description = :description, release_date = :release_date, duration = :duration, mpa_id = :mpa_id " +
-                        "WHERE id = :id",
-                params);
+        jdbcOperations.update(updateFilmSql, params);
 
+        // Удаление старых жанров для фильма из таблицы FILM_GENRE
+        String deleteGenresSql = "DELETE FROM film_genre WHERE film_id = :film_id";
+        jdbcOperations.update(deleteGenresSql, new MapSqlParameterSource("film_id", updatedFilm.getId()));
 
-        // Вставка жанров в таблицу FILM_GENRE
-        for (Genre genre : newFilm.getGenres()) {
-            jdbcOperations.update(
-                    "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
-                    new MapSqlParameterSource()
-                            .addValue("film_id", filmId)
-                            .addValue("genre_id", genre.getId()));
+        // Вставка новых жанров в таблицу FILM_GENRE, если они есть
+        if (updatedFilm.getGenres() != null && !updatedFilm.getGenres().isEmpty()) {
+            for (Genre genre : updatedFilm.getGenres()) {
+                jdbcOperations.update(
+                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
+                        new MapSqlParameterSource()
+                                .addValue("film_id", updatedFilm.getId())
+                                .addValue("genre_id", genre.getId()));
+            }
         }
 
-//         Вставка лайков в таблицу LIKES
-        for (Long userId : newFilm.getLikes()) {
-            jdbcOperations.update(
-                    "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)",
-                    new MapSqlParameterSource()
-                            .addValue("film_id", filmId)
-                            .addValue("user_id", userId));
-        }
-
-        // Возврат созданного фильма с JOIN
+        // Возврат обновленного фильма с JOIN, чтобы получить данные по MPA
         String sql = "SELECT films.*, mpa.name AS mpa_name " +
                 "FROM films " +
                 "JOIN mpa ON films.mpa_id = mpa.id " +
                 "WHERE films.id = :id";
 
-        return jdbcOperations.queryForObject(sql,
-                new MapSqlParameterSource("id", filmId), mapper);
+        Film updatedFilmWithDetails = jdbcOperations.queryForObject(sql,
+                new MapSqlParameterSource("id", updatedFilm.getId()), mapper);
+
+        // Добавление жанров в объект фильма
+        if (updatedFilmWithDetails != null) {
+            String genreSql = "SELECT genres.* FROM film_genre " +
+                    "JOIN genres ON film_genre.genre_id = genres.id " +
+                    "WHERE film_genre.film_id = :film_id";
+            List<Genre> genreList = jdbcOperations.query(genreSql,
+                    new MapSqlParameterSource("film_id", updatedFilm.getId()), genreRowMapper);
+            updatedFilmWithDetails.setGenres(new HashSet<>(genreList));
+        }
+
+        return updatedFilmWithDetails;
     }
-
-
 }
 
 
+
+
+
+
+//@Override
+//public Film updateFilm(Film newFilm) {
+//    MapSqlParameterSource params = new MapSqlParameterSource();
+//    Long filmId = newFilm.getId();
+//    params.addValue("id", filmId);
+//    params.addValue("name", newFilm.getName());
+//    params.addValue("description", newFilm.getDescription());
+//    params.addValue("release_date", newFilm.getReleaseDate());
+//    params.addValue("duration", newFilm.getDuration());
+//    params.addValue("mpa_id", newFilm.getMpa().getId());
+//
+//    // Вставка фильма в таблицу FILMS
+//    jdbcOperations.update(
+//            "UPDATE films SET name = :name, description = :description, release_date = :release_date, duration = :duration, mpa_id = :mpa_id " +
+//                    "WHERE id = :id",
+//            params);
+//
+//
+//    // Вставка жанров в таблицу FILM_GENRE
+//    for (Genre genre : newFilm.getGenres()) {
+//        jdbcOperations.update(
+//                "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
+//                new MapSqlParameterSource()
+//                        .addValue("film_id", filmId)
+//                        .addValue("genre_id", genre.getId()));
+//    }
+//
+////         Вставка лайков в таблицу LIKES
+//    for (Long userId : newFilm.getLikes()) {
+//        jdbcOperations.update(
+//                "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)",
+//                new MapSqlParameterSource()
+//                        .addValue("film_id", filmId)
+//                        .addValue("user_id", userId));
+//    }
+//
+//    // Возврат созданного фильма с JOIN
+//    String sql = "SELECT films.*, mpa.name AS mpa_name " +
+//            "FROM films " +
+//            "JOIN mpa ON films.mpa_id = mpa.id " +
+//            "WHERE films.id = :id";
+//
+//    return jdbcOperations.queryForObject(sql,
+//            new MapSqlParameterSource("id", filmId), mapper);
+//}
+//}
 
