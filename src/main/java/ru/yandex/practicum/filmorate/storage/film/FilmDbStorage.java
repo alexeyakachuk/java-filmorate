@@ -67,20 +67,6 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    public void fetchAndSetFilmLikes(List<Film> films) {
-        for (Film film : films) {
-            Long id = film.getId();
-            String sqlLike = "SELECT user_id FROM likes " +
-                    "WHERE film_id = :id";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("id", id);
-
-            List<Long> userLikes = jdbcOperations.queryForList(sqlLike, params, Long.class);
-
-            film.setLikes(new HashSet<>(userLikes));
-        }
-    }
-
     @Override
     public Film findFilm(long id) {
         String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id WHERE films.id = :id";
@@ -91,19 +77,6 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new NotFoundException("Фильм с id " + id + " не найден");
         }
-
-//        String sql = "SELECT genres.* FROM film_genre JOIN genres ON film_genre.genre_id = genres.id " +
-//                "WHERE film_genre.film_id = :id";
-//        List<Genre> genreList = jdbcOperations.query(sql, params, genreRowMapper);
-//        film.setGenres(new HashSet<>(genreList));
-
-        String sqlLike = "SELECT user_id FROM likes " +
-                "WHERE film_id = :id";
-
-
-        List<Long> userLikes = jdbcOperations.queryForList(sqlLike, params, Long.class);
-
-        film.setLikes(new HashSet<>(userLikes));
 
         return film;
     }
@@ -129,6 +102,8 @@ public class FilmDbStorage implements FilmStorage {
         jdbcOperations.update("DELETE FROM likes WHERE film_id = :filmId AND user_id = :userId", params);
 
     }
+
+
 
 
     @Override
@@ -242,50 +217,5 @@ public class FilmDbStorage implements FilmStorage {
 
 
 
-//@Override
-//public Film updateFilm(Film newFilm) {
-//    MapSqlParameterSource params = new MapSqlParameterSource();
-//    Long filmId = newFilm.getId();
-//    params.addValue("id", filmId);
-//    params.addValue("name", newFilm.getName());
-//    params.addValue("description", newFilm.getDescription());
-//    params.addValue("release_date", newFilm.getReleaseDate());
-//    params.addValue("duration", newFilm.getDuration());
-//    params.addValue("mpa_id", newFilm.getMpa().getId());
-//
-//    // Вставка фильма в таблицу FILMS
-//    jdbcOperations.update(
-//            "UPDATE films SET name = :name, description = :description, release_date = :release_date, duration = :duration, mpa_id = :mpa_id " +
-//                    "WHERE id = :id",
-//            params);
-//
-//
-//    // Вставка жанров в таблицу FILM_GENRE
-//    for (Genre genre : newFilm.getGenres()) {
-//        jdbcOperations.update(
-//                "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
-//                new MapSqlParameterSource()
-//                        .addValue("film_id", filmId)
-//                        .addValue("genre_id", genre.getId()));
-//    }
-//
-////         Вставка лайков в таблицу LIKES
-//    for (Long userId : newFilm.getLikes()) {
-//        jdbcOperations.update(
-//                "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)",
-//                new MapSqlParameterSource()
-//                        .addValue("film_id", filmId)
-//                        .addValue("user_id", userId));
-//    }
-//
-//    // Возврат созданного фильма с JOIN
-//    String sql = "SELECT films.*, mpa.name AS mpa_name " +
-//            "FROM films " +
-//            "JOIN mpa ON films.mpa_id = mpa.id " +
-//            "WHERE films.id = :id";
-//
-//    return jdbcOperations.queryForObject(sql,
-//            new MapSqlParameterSource("id", filmId), mapper);
-//}
-//}
+
 

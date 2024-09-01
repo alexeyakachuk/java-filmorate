@@ -21,14 +21,14 @@ public class GenreDbStorage implements GenreStorage {
         return jdbcOperations.query(query, mapper);
     }
 
-//    @Override
-//    public Genre findById(int id) {
-//        String query = "SELECT * FROM mpa WHERE id = :id";
-//        MapSqlParameterSource params = new MapSqlParameterSource();
-//        params.addValue("id", id);
-//        return jdbcOperations.queryForObject(query, params, mapper);
-//
-//    }
+  // @Override
+    public Genre findById(long id) {
+        String query = "SELECT * FROM mpa WHERE id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", id);
+        return jdbcOperations.queryForObject(query, params, mapper);
+
+    }
 
     @Override
     public List<Genre> findByFilmId(long filmId) {

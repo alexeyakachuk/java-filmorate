@@ -20,5 +20,5 @@ public interface FilmStorage {
 
     List<Film> getPopularFilms(long size);
 
-    void fetchAndSetFilmLikes(List<Film> films);
+    //void fetchAndSetFilmLikes(List<Film> films);
 }

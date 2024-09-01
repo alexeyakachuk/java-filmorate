@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.filmAndGenre.FilmAndGenre;
 import ru.yandex.practicum.filmorate.storage.filmAndGenre.FilmAndGenreStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.likes.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.likes.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -24,28 +26,38 @@ public class FilmService {
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
     private final FilmAndGenreStorage filmAndGenreStorage;
+    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(@Qualifier("H2FilmStorage")FilmStorage filmStorage,
+    public FilmService(@Qualifier("H2FilmStorage") FilmStorage filmStorage,
                        @Qualifier("H2UserStorage") UserStorage userStorage,
                        GenreStorage genreStorage,
-                       @Qualifier("H2FilmAndGenreStorage")FilmAndGenreStorage filmAndGenreStorage) {
+                       @Qualifier("H2FilmAndGenreStorage")FilmAndGenreStorage filmAndGenreStorage,
+                       @Qualifier("H2LikeDbStorage") LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
         this.filmAndGenreStorage = filmAndGenreStorage;
+        this.likeStorage = likeStorage;
     }
 
 
     public List<Film> findAllFilm() {
         List<Film> allFilm = filmStorage.findAllFilm();
-        filmStorage.fetchAndSetFilmLikes(allFilm);
-        return assignGenresToFilms(allFilm);
+
+        List<Film> newFindAllFilms = new ArrayList<>();
+        for (Film film : allFilm) {
+            Film populatedFilm = populateFilmDetails(film);
+            newFindAllFilms.add(populatedFilm);
+        }
+        return newFindAllFilms;
     }
 
     public Film findFilm(long id) {
         Film film = filmStorage.findFilm(id);
         //находим likeStorage.findLikes
+        List<Long> likes = likeStorage.findByIdUserLikes(id);
+        film.setLikes(new HashSet<>(likes));
         //также mpa
         //жанры
         List<Genre> genres = genreStorage.findByFilmId(id);
@@ -76,33 +88,23 @@ public class FilmService {
     }
 
     public List<Film> popular(int size) {
-        List<Film> films = filmStorage.getPopularFilms(size);
-        filmStorage.fetchAndSetFilmLikes(films);
-        return assignGenresToFilms(films);
+        List<Film> popularFilms = filmStorage.getPopularFilms(size);
+
+        List<Film> newPopularFilms = new ArrayList<>();
+        for (Film film : popularFilms) {
+            Film populatedFilm = populateFilmDetails(film);
+            newPopularFilms.add(populatedFilm);
+        }
+        return newPopularFilms;
     }
 
-    private List<Film> assignGenresToFilms(List<Film> films) {
-        List<Genre> allGenre = genreStorage.findAll();
-        List<FilmAndGenre> allFilmsAndGenre = filmAndGenreStorage.findAllFilmsAndGenre();
-
-        Map<Long, List<Genre>> filmGenres = new HashMap<>();
-        for (FilmAndGenre filmAndGenre : allFilmsAndGenre) {
-            long filmId = filmAndGenre.getFilmId();
-            int genreId = filmAndGenre.getGenreId();
-            Genre genre = allGenre.stream()
-                    .filter(g -> g.getId() == genreId)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Жанр не найден"));
-            filmGenres.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);
-        }
-
-        films.forEach(film -> {
-            if (film.getGenres() == null) {
-                film.setGenres(new HashSet<>());
-            }
-            film.getGenres().addAll(new HashSet<>(filmGenres.getOrDefault(film.getId(), Collections.emptyList())));
-        });
-        return films;
+    private Film populateFilmDetails(Film film) {
+        Long id = film.getId();
+        List<Genre> genres = genreStorage.findByFilmId(id);
+        List<Long> likes = likeStorage.findByIdUserLikes(id);
+        film.setGenres(new HashSet<>(genres));
+        film.setLikes(new HashSet<>(likes));
+        return film;
     }
 
     public void deleteLike(long filmId, long userId) {
@@ -113,6 +115,11 @@ public class FilmService {
 
         if (film == null) {
             throw new NotFoundException("Такого фильма нет");
+        }
+        Set<Long> likes = film.getLikes();
+        if (likes == null) {
+            likes = new HashSet<>();
+            film.setLikes(likes);
         }
 
         filmStorage.deleteLike(filmId, userId);
@@ -125,60 +132,3 @@ public class FilmService {
 
 
 
-//    public List<Film> popular(int size) {
-//        // Шаг 1: Получите популярные фильмы
-//        List<Film> films = filmStorage.getPopularFilms(size);
-//
-//        // Шаг 2: Получите все жанры и жанры для фильмов
-//        List<Genre> allGenre = genreStorage.findAll();
-//        List<FilmAndGenre> allFilmsAndGenre = filmAndGenreStorage.findAllFilmsAndGenre();
-//
-//        // Создайте отображение фильма на список жанров
-//        Map<Long, List<Genre>> filmGenres = new HashMap<>();
-//        for (FilmAndGenre filmAndGenre : allFilmsAndGenre) {
-//            long filmId = filmAndGenre.getFilmId();
-//            int genreId = filmAndGenre.getGenreId();
-//            Genre genre = allGenre.stream()
-//                    .filter(g -> g.getId() == genreId)
-//                    .findFirst()
-//                    .orElseThrow(() -> new RuntimeException("Жанр не найден"));
-//            filmGenres.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);
-//        }
-//
-//        // Шаг 3: Назначьте жанры фильмам
-//        films.forEach(film -> {
-//            if (film.getGenres() == null) {
-//                film.setGenres(new HashSet<>());
-//            }
-//            film.getGenres().addAll(new HashSet<>(filmGenres.getOrDefault(film.getId(), Collections.emptyList())));
-//        });
-//
-//        return films;
-//    }
-
-
-
-//    public List<Film> findAllFilm() {
-//        List<Genre> allGenre = genreStorage.findAll();
-//        List<Film> allFilm = filmStorage.findAllFilm();
-//        List<FilmAndGenre> allFilmsAndGenre = filmAndGenreStorage.findAllFilmsAndGenre();
-//
-//        Map<Long, List<Genre>> filmGenres = new HashMap<>();
-//        for (FilmAndGenre filmAndGenre : allFilmsAndGenre) {
-//            long filmId = filmAndGenre.getFilmId();
-//            int genreId = filmAndGenre.getGenreId();
-//            Genre genre = allGenre.stream()
-//                    .filter(g -> g.getId() == genreId)
-//                    .findFirst()
-//                    .orElseThrow(() -> new RuntimeException("Жанр не найден"));
-//            filmGenres.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);
-//        }
-//
-//        allFilm.forEach(film -> {
-//            if (film.getGenres() == null) {
-//                film.setGenres(new HashSet<>());
-//            }
-//            film.getGenres().addAll(new HashSet<>(filmGenres.getOrDefault(film.getId(), Collections.emptyList())));
-//        });
-//        return allFilm;
-//    }
