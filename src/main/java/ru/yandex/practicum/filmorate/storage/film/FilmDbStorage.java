@@ -20,7 +20,6 @@ import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
-@Qualifier("H2FilmStorage")
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -54,6 +53,8 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY films.id, mpa.name " +
                 "ORDER BY like_count DESC " +
                 "LIMIT :size";
+
+
 
         // Выполняем запрос и получаем результаты
         List<Film> films = jdbcOperations.query(sql, params, mapper);

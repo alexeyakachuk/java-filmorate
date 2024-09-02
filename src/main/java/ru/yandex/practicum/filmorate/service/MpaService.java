@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
@@ -17,6 +19,12 @@ public class MpaService {
     }
 
     public Mpa findById(int id) {
-        return mpaDbStorage.findById(id);
+        try {
+            return mpaDbStorage.findById(id);
+        } catch (DataAccessException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+
+
     }
 }

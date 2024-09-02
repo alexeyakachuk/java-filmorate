@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-@Qualifier("H2LikeDbStorage")
 @RequiredArgsConstructor
 public class LikeDbStorage implements LikeStorage {
 

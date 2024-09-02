@@ -3,20 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.filmAndGenre.FilmAndGenre;
-import ru.yandex.practicum.filmorate.storage.filmAndGenre.FilmAndGenreStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.likes.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -25,19 +24,17 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
-    private final FilmAndGenreStorage filmAndGenreStorage;
     private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(@Qualifier("H2FilmStorage") FilmStorage filmStorage,
-                       @Qualifier("H2UserStorage") UserStorage userStorage,
+    public FilmService( FilmStorage filmStorage,
+                        UserStorage userStorage,
                        GenreStorage genreStorage,
-                       @Qualifier("H2FilmAndGenreStorage")FilmAndGenreStorage filmAndGenreStorage,
-                       @Qualifier("H2LikeDbStorage") LikeStorage likeStorage) {
+
+                       LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
-        this.filmAndGenreStorage = filmAndGenreStorage;
         this.likeStorage = likeStorage;
     }
 
@@ -116,15 +113,8 @@ public class FilmService {
         if (film == null) {
             throw new NotFoundException("Такого фильма нет");
         }
-        Set<Long> likes = film.getLikes();
-        if (likes == null) {
-            likes = new HashSet<>();
-            film.setLikes(likes);
-        }
 
         filmStorage.deleteLike(filmId, userId);
-
-        film.getLikes().remove(userId);
 
         log.info("Пользователь с id {} удали лайк из фильма {}", userId, film.getName());
     }
