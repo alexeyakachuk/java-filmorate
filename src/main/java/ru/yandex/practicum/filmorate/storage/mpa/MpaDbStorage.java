@@ -21,7 +21,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa findById(int id) {
+    public Mpa findById(long id) {
         String query = "SELECT * FROM mpa WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);

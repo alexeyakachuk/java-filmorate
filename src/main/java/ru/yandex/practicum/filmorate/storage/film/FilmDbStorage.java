@@ -31,8 +31,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findAllFilm() {
-        String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id;";
-
+        String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id";
+       // String query = "SELECT films.* FROM films";
         List<Film> films = jdbcOperations.query(query, mapper);
 
         return films;
@@ -46,7 +46,7 @@ public class FilmDbStorage implements FilmStorage {
         params.addValue("size", size);
 
         // Определяем SQL-запрос для получения популярных фильмов с количеством лайков
-        String sql = "SELECT films.*, COUNT(likes.user_id) AS like_count, mpa.name " +
+        String query = "SELECT films.*, COUNT(likes.user_id) AS like_count, mpa.name " +
                 "FROM films " +
                 "JOIN mpa ON films.mpa_id = mpa.id " +
                 "LEFT JOIN likes ON films.id = likes.film_id " +
@@ -56,8 +56,10 @@ public class FilmDbStorage implements FilmStorage {
 
 
 
+
+
         // Выполняем запрос и получаем результаты
-        List<Film> films = jdbcOperations.query(sql, params, mapper);
+        List<Film> films = jdbcOperations.query(query, params, mapper);
 
         // Обработка случаев, когда список фильмов пуст
         if (films.isEmpty()) {

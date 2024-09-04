@@ -7,15 +7,16 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -25,17 +26,19 @@ public class FilmService {
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
     private final LikeStorage likeStorage;
+    private final MpaStorage mpaStorage;
 
     @Autowired
     public FilmService( FilmStorage filmStorage,
                         UserStorage userStorage,
                        GenreStorage genreStorage,
-
-                       LikeStorage likeStorage) {
+                        LikeStorage likeStorage,
+                        MpaStorage mpaStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
         this.likeStorage = likeStorage;
+        this.mpaStorage = mpaStorage;
     }
 
 
@@ -44,8 +47,10 @@ public class FilmService {
 
         List<Film> newFindAllFilms = new ArrayList<>();
         for (Film film : allFilm) {
+            Long id = film.getId();
             Film populatedFilm = populateFilmDetails(film);
             newFindAllFilms.add(populatedFilm);
+
         }
         return newFindAllFilms;
     }
@@ -55,7 +60,6 @@ public class FilmService {
         //находим likeStorage.findLikes
         List<Long> likes = likeStorage.findByIdUserLikes(id);
         film.setLikes(new HashSet<>(likes));
-        //также mpa
         //жанры
         List<Genre> genres = genreStorage.findByFilmId(id);
         film.setGenres(new HashSet<>(genres));
@@ -103,6 +107,8 @@ public class FilmService {
         film.setLikes(new HashSet<>(likes));
         return film;
     }
+
+
 
     public void deleteLike(long filmId, long userId) {
         if (userStorage.findUser(userId) == null) {

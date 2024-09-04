@@ -23,7 +23,7 @@ public class GenreDbStorage implements GenreStorage {
 
   // @Override
     public Genre findById(long id) {
-        String query = "SELECT * FROM mpa WHERE id = :id";
+        String query = "SELECT * FROM genres WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         return jdbcOperations.queryForObject(query, params, mapper);
