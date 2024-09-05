@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.List;
 
 @Repository
-@Qualifier("H2UserStorage")
 @RequiredArgsConstructor
 @Slf4j
 public class UserDbStorage implements UserStorage {
@@ -76,6 +75,21 @@ public class UserDbStorage implements UserStorage {
         if (findUser(newUser.getId()) == null) {
             throw new NotFoundException("Пользователя с таким id " + newUser.getId() + " нет");
         }
+
+    }
+
+    // метод добавления в друзей
+
+    @Override
+
+    public void addFriend(long fromUserId, long toUserId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("fromUserId", fromUserId);
+        params.addValue("toUserId", toUserId);
+        jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
+                "VALUES (:fromUserId, :toUserId)", params);
+        jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
+                "VALUES (:toUserId, :fromUserId)", params);
 
     }
 }

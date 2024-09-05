@@ -19,7 +19,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(@Qualifier("H2UserStorage") UserStorage userStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -40,14 +40,16 @@ public class UserService {
     }
 
     public void addToFriendsList(long userId, long newFriendId) {
+        //TODO добавить исключения на проверку коректности id user и userFriend
         User user = findUser(userId);
         User newFriend = findUser(newFriendId);
-        Set<Long> userFriendList = user.getFriends();
-        Set<Long> newFriendFriendList = newFriend.getFriends();
-        userFriendList.add(newFriendId);
-        newFriendFriendList.add(userId);
-        updateUser(user);
-        updateUser(newFriend);
+        userStorage.addFriend(userId, newFriendId);
+//        Set<Long> userFriendList = user.getFriends();
+//        Set<Long> newFriendFriendList = newFriend.getFriends();
+//        userFriendList.add(newFriendId);
+//        newFriendFriendList.add(userId);
+//        updateUser(user);
+//        updateUser(newFriend);
         log.info("Пользователи {} и {} теперь друзья", user.getName(), newFriend.getName());
     }
 
