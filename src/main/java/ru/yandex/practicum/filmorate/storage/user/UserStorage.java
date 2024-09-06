@@ -15,4 +15,6 @@ public interface UserStorage {
     User updateUser(User newUser);
 
     void addFriend(long fromUserId, long toUserId);
+
+    List<Long> getFriendsByUserId(long userId);
 }

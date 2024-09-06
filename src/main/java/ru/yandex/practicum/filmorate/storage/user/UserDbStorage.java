@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -81,15 +80,25 @@ public class UserDbStorage implements UserStorage {
     // метод добавления в друзей
 
     @Override
-
     public void addFriend(long fromUserId, long toUserId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("fromUserId", fromUserId);
         params.addValue("toUserId", toUserId);
         jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
                 "VALUES (:fromUserId, :toUserId)", params);
-        jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
-                "VALUES (:toUserId, :fromUserId)", params);
+//        jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
+//                "VALUES (:toUserId, :fromUserId)", params);
 
+    }
+
+    @Override
+    public List<Long> getFriendsByUserId(long userId) {
+        String query = "SELECT friendships.to_user_id FROM friendships " +
+                "WHERE from_user_id = :from_user_id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("from_user_id", userId);
+        List<Long> friends = jdbcOperations.queryForList(query, params, Long.class);
+        return friends;
     }
 }

@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,11 +26,21 @@ public class UserService {
     }
 
     public List<User> findAllUsers() {
-        return userStorage.findAllUsers();
+        List<User> allUsers = userStorage.findAllUsers();
+        for (User user : allUsers) {
+            Long id = user.getId();
+            List<Long> friendsId = userStorage.getFriendsByUserId(id);
+            user.setFriends(new HashSet<>(friendsId));
+        }
+        return allUsers;
     }
 
     public User findUser(long id) {
-        return userStorage.findUser(id);
+
+        User user = userStorage.findUser(id);
+        List<Long> friendsId = userStorage.getFriendsByUserId(id);
+        user.setFriends(new HashSet<>(friendsId));
+        return user;
     }
 
     public User createUser(User user) {
@@ -43,6 +55,7 @@ public class UserService {
         //TODO добавить исключения на проверку коректности id user и userFriend
         User user = findUser(userId);
         User newFriend = findUser(newFriendId);
+
         userStorage.addFriend(userId, newFriendId);
 //        Set<Long> userFriendList = user.getFriends();
 //        Set<Long> newFriendFriendList = newFriend.getFriends();
@@ -50,7 +63,7 @@ public class UserService {
 //        newFriendFriendList.add(userId);
 //        updateUser(user);
 //        updateUser(newFriend);
-        log.info("Пользователи {} и {} теперь друзья", user.getName(), newFriend.getName());
+        log.info("Пользователь {} добавил {} в друзья", user.getName(), newFriend.getName());
     }
 
     public List<User> getFriendsUser(long id) {
@@ -75,14 +88,14 @@ public class UserService {
     }
 
     public List<User> showMutualFriends(long userId, long friendId) {
-        final User user = userStorage.findUser(userId);
-        final User other = userStorage.findUser(friendId);
-        final Set<Long> friends = user.getFriends();
-        final Set<Long> otherFriends = other.getFriends();
+        List<Long> friends = userStorage.getFriendsByUserId(userId);
+        List<Long> otherFriends = userStorage.getFriendsByUserId(friendId);
 
         return friends.stream()
                 .filter(otherFriends::contains)
                 .map(userStorage::findUser)
                 .collect(Collectors.toList());
     }
+
+
 }

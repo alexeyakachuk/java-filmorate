@@ -47,14 +47,10 @@ public class FilmService {
     public List<Film> findAllFilm() {
         List<Film> allFilm = filmStorage.findAllFilm();
 
-        List<Film> newFindAllFilms = new ArrayList<>();
         for (Film film : allFilm) {
-            Long id = film.getId();
-            Film populatedFilm = populateFilmDetails(film);
-            newFindAllFilms.add(populatedFilm);
-
+            populateFilmDetails(film);
         }
-        return newFindAllFilms;
+        return allFilm;
     }
 
     public Film findFilm(long id) {
