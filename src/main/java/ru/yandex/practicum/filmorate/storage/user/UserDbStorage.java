@@ -101,4 +101,17 @@ public class UserDbStorage implements UserStorage {
         List<Long> friends = jdbcOperations.queryForList(query, params, Long.class);
         return friends;
     }
+
+    @Override
+    public void deleteFriend(long userId, long friendId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("friendId", friendId);
+
+        jdbcOperations.update("DELETE FROM friendships " +
+                "WHERE from_user_id = :userId AND to_user_id = :friendId", params);
+
+        jdbcOperations.update("DELETE FROM friendships " +
+                "WHERE from_user_id = :friendId AND to_user_id = :userId", params);
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -39,5 +40,10 @@ public class GenreDbStorage implements GenreStorage {
         params.addValue("filmId", filmId);
         List<Genre> genres = jdbcOperations.query(query, params, mapper);
         return genres;
+    }
+
+    @Override
+    public List<Genre> settingGenres(long filmId, List<Genre> genres) {
+        return null;
     }
 }

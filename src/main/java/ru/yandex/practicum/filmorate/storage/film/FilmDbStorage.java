@@ -125,38 +125,40 @@ public class FilmDbStorage implements FilmStorage {
                 params, keyHolder);
 
         long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        newFilm.setId(filmId);
 
         // Вставка жанров в таблицу FILM_GENRE, если они есть
-        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
-            for (Genre genre : newFilm.getGenres()) {
-                jdbcOperations.update(
-                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
-                        new MapSqlParameterSource()
-                                .addValue("film_id", filmId)
-                                .addValue("genre_id", genre.getId()));
-            }
-        }
-
-        // Возврат созданного фильма с JOIN, чтобы получить данные по MPA
-        String sql = "SELECT films.*, mpa.name AS mpa_name " +
-                "FROM films " +
-                "JOIN mpa ON films.mpa_id = mpa.id " +
-                "WHERE films.id = :id";
-
-        Film createdFilm = jdbcOperations.queryForObject(sql,
-                new MapSqlParameterSource("id", filmId), mapper);
-
-        // Добавление жанров в объект фильма
-        if (createdFilm != null) {
-            String genreSql = "SELECT genres.* FROM film_genre " +
-                    "JOIN genres ON film_genre.genre_id = genres.id " +
-                    "WHERE film_genre.film_id = :film_id";
-            List<Genre> genreList = jdbcOperations.query(genreSql,
-                    new MapSqlParameterSource("film_id", filmId), genreRowMapper);
-            createdFilm.setGenres(new HashSet<>(genreList));
-        }
-
-        return createdFilm;
+//        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
+//            for (Genre genre : newFilm.getGenres()) {
+//                jdbcOperations.update(
+//                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
+//                        new MapSqlParameterSource()
+//                                .addValue("film_id", filmId)
+//                                .addValue("genre_id", genre.getId()));
+//            }
+//        }
+//
+//        // Возврат созданного фильма с JOIN, чтобы получить данные по MPA
+//        String sql = "SELECT films.*, mpa.name AS mpa_name " +
+//                "FROM films " +
+//                "JOIN mpa ON films.mpa_id = mpa.id " +
+//                "WHERE films.id = :id";
+//
+//        Film createdFilm = jdbcOperations.queryForObject(sql,
+//                new MapSqlParameterSource("id", filmId), mapper);
+//
+//        // Добавление жанров в объект фильма
+//        if (createdFilm != null) {
+//            String genreSql = "SELECT genres.* FROM film_genre " +
+//                    "JOIN genres ON film_genre.genre_id = genres.id " +
+//                    "WHERE film_genre.film_id = :film_id";
+//            List<Genre> genreList = jdbcOperations.query(genreSql,
+//                    new MapSqlParameterSource("film_id", filmId), genreRowMapper);
+//            createdFilm.setGenres(new HashSet<>(genreList));
+//        }
+//
+//        return createdFilm;
+        return newFilm;
     }
 
     @Override

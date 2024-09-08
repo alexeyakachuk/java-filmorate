@@ -10,4 +10,6 @@ public interface GenreStorage {
 //    Genre findById(int id);
 
     List<Genre> findByFilmId(long filmId);
+
+    List<Genre> settingGenres(long filmId, List<Genre> genres);
 }

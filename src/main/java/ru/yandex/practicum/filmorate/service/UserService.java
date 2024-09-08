@@ -38,6 +38,9 @@ public class UserService {
     public User findUser(long id) {
 
         User user = userStorage.findUser(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден"); // Добавьте это условие
+        }
         List<Long> friendsId = userStorage.getFriendsByUserId(id);
         user.setFriends(new HashSet<>(friendsId));
         return user;
@@ -57,12 +60,7 @@ public class UserService {
         User newFriend = findUser(newFriendId);
 
         userStorage.addFriend(userId, newFriendId);
-//        Set<Long> userFriendList = user.getFriends();
-//        Set<Long> newFriendFriendList = newFriend.getFriends();
-//        userFriendList.add(newFriendId);
-//        newFriendFriendList.add(userId);
-//        updateUser(user);
-//        updateUser(newFriend);
+
         log.info("Пользователь {} добавил {} в друзья", user.getName(), newFriend.getName());
     }
 
@@ -80,10 +78,12 @@ public class UserService {
         User user = findUser(userId);
         User friendUser = findUser(friendId);
 
-        user.getFriends().remove(friendId);
-        friendUser.getFriends().remove(userId);
-        updateUser(user);
-        updateUser(friendUser);
+        userStorage.deleteFriend(userId, friendId);
+
+//        user.getFriends().remove(friendId);
+//        friendUser.getFriends().remove(userId);
+//        updateUser(user);
+//        updateUser(friendUser);
         log.info("Пользователь {} удалил из друзей {}", user.getName(), friendUser.getName());
     }
 
