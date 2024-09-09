@@ -83,7 +83,6 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-
     @Override
     public void addLike(long filmId, long userId) {
 

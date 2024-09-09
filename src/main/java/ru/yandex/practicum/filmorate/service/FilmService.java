@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -17,9 +18,7 @@ import ru.yandex.practicum.filmorate.storage.likes.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -66,21 +65,29 @@ public class FilmService {
     }
 
     public Film createFilm(Film newFilm) {
-        Film film = filmStorage.createFilm(newFilm);
 
+        int mpaId = newFilm.getMpa().getId();
+
+        try {
+            mpaStorage.findById(mpaId);
+        } catch (DataAccessException e) {
+            throw new ValidationException(e.getMessage());
+        }
+
+        Film film = filmStorage.createFilm(newFilm);
 
         try {
             genreStorage.addGenresToFilm(newFilm);
         } catch (DataAccessException e) {
-            throw new NotFoundException(e.getMessage());
+            throw new ValidationException(e.getMessage());
         }
 
         List<Genre> genresByFilmId = genreStorage.findGenresByFilmId(film.getId());
+        TreeSet<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
+        genres.addAll(genresByFilmId);
+        film.setGenres(genres);
 
-        film.setGenres(new HashSet<>(genresByFilmId));
 
-//        Mpa mpa = mpaStorage.insertIntoMpaFilm(film.getId());
-//        film.setMpa(mpa);
         return film;
     }
 

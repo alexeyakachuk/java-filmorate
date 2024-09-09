@@ -31,4 +31,5 @@ public class ErrorHandler {
         log.error("Неожиданная ошибка", e);
         return Map.of("error", "Внутренняя ошибка сервера");
     }
+
 }

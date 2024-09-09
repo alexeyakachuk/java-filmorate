@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -111,7 +112,20 @@ public class UserDbStorage implements UserStorage {
         jdbcOperations.update("DELETE FROM friendships " +
                 "WHERE from_user_id = :userId AND to_user_id = :friendId", params);
 
-        jdbcOperations.update("DELETE FROM friendships " +
-                "WHERE from_user_id = :friendId AND to_user_id = :userId", params);
+//        jdbcOperations.update("DELETE FROM friendships " +
+//                "WHERE from_user_id = :friendId AND to_user_id = :userId", params);
+    }
+
+    @Override
+    public List<User> getUserFriends(long userId) {
+        List<Long> friendIds = getFriendsByUserId(userId);
+        List<User> friends = new ArrayList<>();
+
+        for (Long friendId : friendIds) {
+            User user = findUser(friendId);
+            friends.add(user);
+        }
+
+        return friends;
     }
 }

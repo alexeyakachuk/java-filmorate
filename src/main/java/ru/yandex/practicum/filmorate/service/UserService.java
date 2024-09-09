@@ -55,7 +55,7 @@ public class UserService {
     }
 
     public void addToFriendsList(long userId, long newFriendId) {
-        //TODO добавить исключения на проверку коректности id user и userFriend
+
         User user = findUser(userId);
         User newFriend = findUser(newFriendId);
 
@@ -65,13 +65,9 @@ public class UserService {
     }
 
     public List<User> getFriendsUser(long id) {
-        User user = findUser(id);
-        if (user == null) {
-            throw new NotFoundException("Пользователя с id " + id + " нет");
-        }
-        return findAllUsers().stream()
-                .filter(u -> u.getFriends().contains(id))
-                .collect(Collectors.toList());
+        findUser(id);
+
+        return userStorage.getUserFriends(id);
     }
 
     public void deleteFromFriendList(long userId, long friendId) {
