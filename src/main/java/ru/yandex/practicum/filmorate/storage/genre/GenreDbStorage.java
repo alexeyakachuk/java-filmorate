@@ -5,10 +5,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mappers.GenreRowMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,8 +23,8 @@ public class GenreDbStorage implements GenreStorage {
         return jdbcOperations.query(query, mapper);
     }
 
-  // @Override
-    public Genre findById(long id) {
+    @Override
+    public Genre findById(int id) {
         String query = "SELECT * FROM genres WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
@@ -43,7 +44,28 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public List<Genre> settingGenres(long filmId, List<Genre> genres) {
-        return null;
+    public void addGenresToFilm(Film film) {
+        Set<Genre> genres = film.getGenres();
+        Long filmId = film.getId();
+        if (genres != null && !genres.isEmpty()) {
+            for (Genre genre : genres) {
+                jdbcOperations.update(
+                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
+                        new MapSqlParameterSource()
+                                .addValue("film_id", filmId)
+                                .addValue("genre_id", genre.getId()));
+            }
+        }
+    }
+
+    @Override
+    public List<Genre> findGenresByFilmId(long filmId) {
+        String query = "SELECT genres.* FROM film_genre " +
+                "JOIN genres ON film_genre.genre_id = genres.id " +
+                "WHERE film_genre.film_id = :film_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        List<Genre> genres = jdbcOperations.query(query, params, mapper);
+        return genres;
     }
 }

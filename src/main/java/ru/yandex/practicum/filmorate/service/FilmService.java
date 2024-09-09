@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,7 +66,22 @@ public class FilmService {
     }
 
     public Film createFilm(Film newFilm) {
-        return filmStorage.createFilm(newFilm);
+        Film film = filmStorage.createFilm(newFilm);
+
+
+        try {
+            genreStorage.addGenresToFilm(newFilm);
+        } catch (DataAccessException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+
+        List<Genre> genresByFilmId = genreStorage.findGenresByFilmId(film.getId());
+
+        film.setGenres(new HashSet<>(genresByFilmId));
+
+//        Mpa mpa = mpaStorage.insertIntoMpaFilm(film.getId());
+//        film.setMpa(mpa);
+        return film;
     }
 
     public Film updateFilm(Film newFilm) {

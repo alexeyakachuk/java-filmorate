@@ -19,7 +19,7 @@ public class GenreService {
         return genreDbStorage.findAll();
     }
 
-    public Genre findById(long id) {
+    public Genre findById(int id) {
         try {
             return genreDbStorage.findById(id);
         } catch (DataAccessException e) {

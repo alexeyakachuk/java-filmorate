@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mappers.MpaRowMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import java.util.List;
 
@@ -25,6 +26,22 @@ public class MpaDbStorage implements MpaStorage {
         String query = "SELECT * FROM mpa WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
+        return jdbcOperations.queryForObject(query, params, mapper);
+    }
+
+    @Override
+    public Mpa insertIntoMpaFilm(long filmId) {
+//        Long filmId = film.getId();
+
+        String query = "SELECT films.*, mpa.name AS mpa_name " +
+                "FROM films " +
+                "JOIN mpa ON films.mpa_id = mpa.id " +
+                "WHERE films.id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+
+//        Film createdFilm = jdbcOperations.queryForObject(sql,
+//                new MapSqlParameterSource("id", filmId), mapper);
         return jdbcOperations.queryForObject(query, params, mapper);
     }
 }
