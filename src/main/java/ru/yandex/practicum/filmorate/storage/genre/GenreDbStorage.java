@@ -68,4 +68,13 @@ public class GenreDbStorage implements GenreStorage {
         List<Genre> genres = jdbcOperations.query(query, params, mapper);
         return genres;
     }
+
+    @Override
+    public void removeGenresFromFilm(long filmId) {
+        String deleteGenresSql = "DELETE FROM film_genre WHERE film_id = :film_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        jdbcOperations.update(deleteGenresSql, params);
+    }
+
 }

@@ -5,13 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikeStorage;
@@ -31,11 +28,11 @@ public class FilmService {
     private final MpaStorage mpaStorage;
 
     @Autowired
-    public FilmService( FilmStorage filmStorage,
-                        UserStorage userStorage,
+    public FilmService(FilmStorage filmStorage,
+                       UserStorage userStorage,
                        GenreStorage genreStorage,
-                        LikeStorage likeStorage,
-                        MpaStorage mpaStorage) {
+                       LikeStorage likeStorage,
+                       MpaStorage mpaStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
@@ -87,12 +84,29 @@ public class FilmService {
         genres.addAll(genresByFilmId);
         film.setGenres(genres);
 
-
         return film;
     }
 
-    public Film updateFilm(Film newFilm) {
-        return filmStorage.updateFilm(newFilm);
+    public Film updateFilm(Film updatedFilm) {
+        // Проверяем существование MPA
+        int mpaId = updatedFilm.getMpa().getId();
+        try {
+            mpaStorage.findById(mpaId);
+        } catch (DataAccessException e) {
+            throw new ValidationException(e.getMessage());
+        }
+
+        // Обновляем данные фильма в базе данных
+        Film updatedFilmFromDb = filmStorage.updateFilm(updatedFilm);
+
+        // Обновляем жанры фильма
+        genreStorage.removeGenresFromFilm(updatedFilm.getId());
+        genreStorage.addGenresToFilm(updatedFilm);
+
+        // Заполняем обновлённые детали фильма
+        updatedFilmFromDb = populateFilmDetails(updatedFilmFromDb);
+
+        return updatedFilmFromDb;
     }
 
     public void addLike(long filmId, long userId) {
@@ -128,8 +142,6 @@ public class FilmService {
         film.setLikes(new HashSet<>(likes));
         return film;
     }
-
-
 
     public void deleteLike(long filmId, long userId) {
         if (userStorage.findUser(userId) == null) {

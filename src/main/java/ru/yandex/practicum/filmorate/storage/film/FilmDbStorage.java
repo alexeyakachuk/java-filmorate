@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -12,7 +13,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.*;
@@ -27,15 +27,13 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreRowMapper genreRowMapper;
 
-
     @Override
     public List<Film> findAllFilm() {
         String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id";
-       // String query = "SELECT films.* FROM films";
+        // String query = "SELECT films.* FROM films";
         List<Film> films = jdbcOperations.query(query, mapper);
 
         return films;
-
     }
 
     @Override
@@ -54,9 +52,6 @@ public class FilmDbStorage implements FilmStorage {
                 "LIMIT :size";
 
 
-
-
-
         // Выполняем запрос и получаем результаты
         List<Film> films = jdbcOperations.query(query, params, mapper);
 
@@ -64,8 +59,6 @@ public class FilmDbStorage implements FilmStorage {
         if (films.isEmpty()) {
             log.info("Нет популярных фильмов для отображения");
         }
-
-
         return films;
     }
 
@@ -79,7 +72,6 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new NotFoundException("Фильм с id " + id + " не найден");
         }
-
         return film;
     }
 
@@ -104,9 +96,6 @@ public class FilmDbStorage implements FilmStorage {
 
     }
 
-
-
-
     @Override
     public Film createFilm(Film newFilm) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -126,47 +115,16 @@ public class FilmDbStorage implements FilmStorage {
         long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
         newFilm.setId(filmId);
 
-        // Вставка жанров в таблицу FILM_GENRE, если они есть
-//        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
-//            for (Genre genre : newFilm.getGenres()) {
-//                jdbcOperations.update(
-//                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
-//                        new MapSqlParameterSource()
-//                                .addValue("film_id", filmId)
-//                                .addValue("genre_id", genre.getId()));
-//            }
-//        }
-//
-//        // Возврат созданного фильма с JOIN, чтобы получить данные по MPA
-//        String sql = "SELECT films.*, mpa.name AS mpa_name " +
-//                "FROM films " +
-//                "JOIN mpa ON films.mpa_id = mpa.id " +
-//                "WHERE films.id = :id";
-//
-//        Film createdFilm = jdbcOperations.queryForObject(sql,
-//                new MapSqlParameterSource("id", filmId), mapper);
-//
-//        // Добавление жанров в объект фильма
-//        if (createdFilm != null) {
-//            String genreSql = "SELECT genres.* FROM film_genre " +
-//                    "JOIN genres ON film_genre.genre_id = genres.id " +
-//                    "WHERE film_genre.film_id = :film_id";
-//            List<Genre> genreList = jdbcOperations.query(genreSql,
-//                    new MapSqlParameterSource("film_id", filmId), genreRowMapper);
-//            createdFilm.setGenres(new HashSet<>(genreList));
-//        }
-
-//        return createdFilm;
         return newFilm;
     }
 
     @Override
     public Film updateFilm(Film updatedFilm) {
-        // Обновление информации о фильме в таблице FILMS
-        String updateFilmSql = "UPDATE films SET name = :name, description = :description, " +
-                "release_date = :release_date, duration = :duration, mpa_id = :mpa_id " +
-                "WHERE id = :id";
+        // Определяем SQL-запрос для обновления данных фильма
+        String query = "UPDATE films SET name = :name, description = :description, release_date = :release_date, " +
+                "duration = :duration, mpa_id = :mpa_id WHERE id = :id";
 
+        // Подготавливаем параметры для запроса
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", updatedFilm.getId());
         params.addValue("name", updatedFilm.getName());
@@ -175,45 +133,20 @@ public class FilmDbStorage implements FilmStorage {
         params.addValue("duration", updatedFilm.getDuration());
         params.addValue("mpa_id", updatedFilm.getMpa().getId());
 
-        jdbcOperations.update(updateFilmSql, params);
+        // Выполняем запрос на обновление
+        int rowsAffected = jdbcOperations.update(query, params);
 
-        // Удаление старых жанров для фильма из таблицы FILM_GENRE
-        String deleteGenresSql = "DELETE FROM film_genre WHERE film_id = :film_id";
-        jdbcOperations.update(deleteGenresSql, new MapSqlParameterSource("film_id", updatedFilm.getId()));
-
-        // Вставка новых жанров в таблицу FILM_GENRE, если они есть
-        if (updatedFilm.getGenres() != null && !updatedFilm.getGenres().isEmpty()) {
-            for (Genre genre : updatedFilm.getGenres()) {
-                jdbcOperations.update(
-                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
-                        new MapSqlParameterSource()
-                                .addValue("film_id", updatedFilm.getId())
-                                .addValue("genre_id", genre.getId()));
-            }
+        // Проверяем, был ли обновлён фильм
+        if (rowsAffected == 0) {
+            throw new NotFoundException("Фильм с id " + updatedFilm.getId() + " не найден");
         }
 
-        // Возврат обновленного фильма с JOIN, чтобы получить данные по MPA
-        String sql = "SELECT films.*, mpa.name AS mpa_name " +
-                "FROM films " +
-                "JOIN mpa ON films.mpa_id = mpa.id " +
-                "WHERE films.id = :id";
-
-        Film updatedFilmWithDetails = jdbcOperations.queryForObject(sql,
-                new MapSqlParameterSource("id", updatedFilm.getId()), mapper);
-
-        // Добавление жанров в объект фильма
-        if (updatedFilmWithDetails != null) {
-            String genreSql = "SELECT genres.* FROM film_genre " +
-                    "JOIN genres ON film_genre.genre_id = genres.id " +
-                    "WHERE film_genre.film_id = :film_id";
-            List<Genre> genreList = jdbcOperations.query(genreSql,
-                    new MapSqlParameterSource("film_id", updatedFilm.getId()), genreRowMapper);
-            updatedFilmWithDetails.setGenres(new HashSet<>(genreList));
-        }
-
-        return updatedFilmWithDetails;
+        // Возвращаем обновлённый фильм
+        return updatedFilm;
     }
 }
+
+
 
 
 

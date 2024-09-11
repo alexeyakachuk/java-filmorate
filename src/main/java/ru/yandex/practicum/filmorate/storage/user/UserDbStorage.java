@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,11 +36,13 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User findUser(long id) {
         String query = "SELECT * FROM users WHERE ID = ?";
-        if (jdbcTemplate.query(query, mapper, id).isEmpty()) {
-            return null;
-        } else {
+        try {
             return jdbcTemplate.queryForObject(query, mapper, id);
+        } catch (DataAccessException e) {
+            return null;
         }
+
+
     }
 
     @Override
@@ -57,15 +61,35 @@ public class UserDbStorage implements UserStorage {
 
         log.info("Пользователь {} сохранен", newUser);
 
-        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE ID = ?", mapper, keyHolder.getKey().longValue());
+        long userId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+
+        return findUser(userId);
     }
+
 
     @Override
     public User updateUser(User newUser) {
+        // Проверяем, существует ли пользователь с данным ID
         checkId(newUser);
-        String sql = "UPDATE USERS SET EMAIL = ?, NAME = ?, LOGIN = ?, BIRTHDAY = ? WHERE ID = ?";
-        jdbcTemplate.update(sql, newUser.getEmail(), newUser.getName(), newUser.getLogin(), newUser.getBirthday(), newUser.getId());
-        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE ID = ?", mapper, newUser.getId());
+
+        // Определяем SQL-запрос с именованными параметрами
+        String sql = "UPDATE users SET email = :email, name = :name, login = :login, birthday = :birthday WHERE id = :id";
+
+        // Подготавливаем параметры для запроса
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", newUser.getId());
+        params.addValue("email", newUser.getEmail());
+        params.addValue("name", newUser.getName());
+        params.addValue("login", newUser.getLogin());
+        params.addValue("birthday", newUser.getBirthday());
+
+        // Выполняем запрос на обновление
+        jdbcOperations.update(sql, params);
+
+        // Получаем обновлённого пользователя
+//        String query = "SELECT * FROM users WHERE id = :id";
+//        return jdbcOperations.queryForObject(query, params, mapper);
+        return findUser(newUser.getId());
     }
 
     private void checkId(User newUser) {
@@ -87,9 +111,6 @@ public class UserDbStorage implements UserStorage {
         params.addValue("toUserId", toUserId);
         jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
                 "VALUES (:fromUserId, :toUserId)", params);
-//        jdbcOperations.update("MERGE INTO friendships (from_user_id, to_user_id) " +
-//                "VALUES (:toUserId, :fromUserId)", params);
-
     }
 
     @Override
@@ -111,9 +132,6 @@ public class UserDbStorage implements UserStorage {
 
         jdbcOperations.update("DELETE FROM friendships " +
                 "WHERE from_user_id = :userId AND to_user_id = :friendId", params);
-
-//        jdbcOperations.update("DELETE FROM friendships " +
-//                "WHERE from_user_id = :friendId AND to_user_id = :userId", params);
     }
 
     @Override
