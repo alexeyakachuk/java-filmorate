@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -34,7 +33,6 @@ class UserDbStorageTest {
                 .name("Test User")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
-
 
         testUser = userStorage.createUser(user);
 
@@ -119,7 +117,5 @@ class UserDbStorageTest {
 
         assertEquals(1, allUserFriends.size());
         assertEquals(testUser2, allUserFriends.getFirst());
-
-
     }
 }

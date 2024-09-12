@@ -102,7 +102,6 @@ class FilmDbStorageTest {
 
     @Test
     void getPopularFilmsTest() {
-        // Добавляем лайки к первому фильму от второго пользователя
         filmStorage.addLike(testFilm.getId(), testUser2.getId());
 
         List<Film> popularFilms = filmStorage.getPopularFilms(1);
@@ -134,7 +133,6 @@ class FilmDbStorageTest {
         Set<Long> likes = filmService.findFilm(testFilm.getId()).getLikes();
 
         assertEquals(1, likes.size());
-
     }
 
     @Test
