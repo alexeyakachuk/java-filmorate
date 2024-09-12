@@ -79,6 +79,9 @@ public class FilmService {
             throw new ValidationException(e.getMessage());
         }
 
+        List<Long> likes = likeStorage.findByIdUserLikes(film.getId());
+        film.setLikes(new HashSet<>(likes));
+
         List<Genre> genresByFilmId = genreStorage.findGenresByFilmId(film.getId());
         TreeSet<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
         genres.addAll(genresByFilmId);

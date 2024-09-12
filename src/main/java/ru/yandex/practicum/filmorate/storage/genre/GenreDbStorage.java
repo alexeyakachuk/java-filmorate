@@ -50,7 +50,7 @@ public class GenreDbStorage implements GenreStorage {
         if (genres != null && !genres.isEmpty()) {
             for (Genre genre : genres) {
                 jdbcOperations.update(
-                        "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
+                        "MERGE INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)",
                         new MapSqlParameterSource()
                                 .addValue("film_id", filmId)
                                 .addValue("genre_id", genre.getId()));
