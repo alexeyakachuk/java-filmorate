@@ -34,7 +34,7 @@ class FilmDbStorageTest {
     private User testUser2;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         jdbcOperations.update("DELETE FROM film_genre", Map.of());
         jdbcOperations.update("DELETE FROM likes", Map.of());
         jdbcOperations.update("DELETE FROM films", Map.of());
