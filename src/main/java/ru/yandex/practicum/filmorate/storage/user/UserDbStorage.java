@@ -33,8 +33,9 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(query, mapper);
 
     }
-@Override
-public Map<Long, Set<Long>> getAllFriends() {
+
+    @Override
+    public Map<Long, Set<Long>> getAllFriends() {
         String query = "SELECT from_user_id, to_user_id FROM friendships";
         Map<Long, Set<Long>> friendsByUserId = new HashMap<>();
 
@@ -44,16 +45,10 @@ public Map<Long, Set<Long>> getAllFriends() {
             Long toUserId = (Long) row.get("to_user_id");
 
             friendsByUserId.computeIfAbsent(fromUserId, k -> new HashSet<>()).add(toUserId);
-//            friendsByUserId.computeIfAbsent(toUserId, k -> new HashSet<>()).add(fromUserId);
         }
 
         return friendsByUserId;
     }
-
-//    SELECT USERS.id, USERS.email, USERS.login, USERS.name, USERS.birthday, FRIENDSHIPS.from_user_id, FRIENDSHIPS.to_user_id
-//    FROM USERS
-//    LEFT JOIN FRIENDSHIPS ON USERS.id = FRIENDSHIPS.from_user_id OR USERS.id = FRIENDSHIPS.to_user_id
-//    ORDER BY USERS.id;
 
     @Override
     public User findUser(long id) {
@@ -154,28 +149,16 @@ public Map<Long, Set<Long>> getAllFriends() {
                 "WHERE from_user_id = :userId AND to_user_id = :friendId", params);
     }
 
-//    @Override
-//    public List<User> getUserFriends(long userId) {
-//        List<Long> friendIds = getFriendsByUserId(userId);
-//        List<User> friends = new ArrayList<>();
-//
-//        for (Long friendId : friendIds) {
-//            User user = findUser(friendId);
-//            friends.add(user);
-//        }
-//
-//        return friends;
-//    }
-@Override
-public List<User> getUserFriends(long userId) {
-    String query = "SELECT f.to_user_id FROM friendships f WHERE f.from_user_id = :userId";
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("userId", userId);
-    List<Long> friendIds = jdbcOperations.queryForList(query, params, Long.class);
+    @Override
+    public List<User> getUserFriends(long userId) {
+        String query = "SELECT f.to_user_id FROM friendships f WHERE f.from_user_id = :userId";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        List<Long> friendIds = jdbcOperations.queryForList(query, params, Long.class);
 
-    // Используем стримы для преобразования списка ID друзей в список объектов User
-    return friendIds.stream()
-            .map(this::findUser)
-            .collect(Collectors.toList());
-}
+        // Используем стримы для преобразования списка ID друзей в список объектов User
+        return friendIds.stream()
+                .map(this::findUser)
+                .collect(Collectors.toList());
+    }
 }

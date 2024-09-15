@@ -24,16 +24,6 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-//    public List<User> findAllUsers() {
-//        List<User> allUsers = userStorage.findAllUsers();
-////        for (User user : allUsers) {
-////            Long id = user.getId();
-////            List<Long> friendsId = userStorage.getFriendsByUserId(id);
-////            user.setFriends(new HashSet<>(friendsId));
-////        }
-//        return allUsers;
-//    }
-
     public List<User> findAllUsers() {
         List<User> allUsers = userStorage.findAllUsers();
         Map<Long, Set<Long>> friendsByUserId = userStorage.getAllFriends();

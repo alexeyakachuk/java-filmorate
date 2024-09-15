@@ -10,29 +10,29 @@ DROP TABLE IF EXISTS MPA;
 -- Создание таблицы MPA
 CREATE TABLE IF NOT EXISTS MPA (
     id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(100) NOT NULL -- Уменьшение длины, так как название рейтинга обычно короткое
 );
 
 -- Создание таблицы жанров
 CREATE TABLE IF NOT EXISTS GENRES (
     id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(50) NOT NULL -- Уменьшение длины, так как названия жанров обычно короткие
 );
 
 -- Создание таблицы пользователей
 CREATE TABLE IF NOT EXISTS USERS (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(255) NOT NULL,
-    login VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL, -- Уменьшение длины для email
+    login VARCHAR(50) NOT NULL, -- Уменьшение длины для логина
+    name VARCHAR(100) NOT NULL, -- Уменьшение длины для имени
     birthday DATE NOT NULL
 );
 
 -- Создание таблицы фильмов
 CREATE TABLE IF NOT EXISTS FILMS (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(200),
+    name VARCHAR(150) NOT NULL, -- Увеличение длины для названия фильма
+    description VARCHAR(500), -- Увеличение длины для описания фильма
     release_date DATE NOT NULL,
     duration INTEGER,
     mpa_id INTEGER,
@@ -66,8 +66,6 @@ CREATE TABLE IF NOT EXISTS FRIENDSHIPS (
     FOREIGN KEY (from_user_id) REFERENCES USERS(id),
     FOREIGN KEY (to_user_id) REFERENCES USERS(id)
 );
-
-
 
 
 

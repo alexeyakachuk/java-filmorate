@@ -40,15 +40,6 @@ public class FilmService {
         this.mpaStorage = mpaStorage;
     }
 
-
-    //    public List<Film> findAllFilm() {
-//        List<Film> allFilm = filmStorage.findAllFilm();
-//
-////        for (Film film : allFilm) {
-////            populateFilmDetails(film);
-////        }
-//        return allFilm;
-//    }
     public List<Film> findAllFilm() {
         List<Film> allFilm = filmStorage.findAllFilm();
         Map<Long, Set<Long>> likesByFilmId = filmStorage.addLikesToFilms(allFilm);
@@ -140,21 +131,11 @@ public class FilmService {
     public List<Film> popular(int size) {
         List<Film> popularFilms = filmStorage.getPopularFilms(size);
 
-//        List<Film> newPopularFilms = new ArrayList<>();
-//        for (Film film : popularFilms) {
-//            Film populatedFilm = populateFilmDetails(film);
-//            newPopularFilms.add(populatedFilm);
-//        }
-//        List<Film> allFilm = filmStorage.findAllFilm();
         Map<Long, Set<Long>> likesByFilmId = filmStorage.addLikesToFilms(popularFilms);
-//
-//        // Добавляем лайки для каждого фильма в полученный список
+
+        // Добавляем лайки для каждого фильма в полученный список
         for (Film film : popularFilms) {
             film.setLikes(likesByFilmId.getOrDefault(film.getId(), new HashSet<>()));
-//        }
-//
-//        return allFilm;
-
         }
         return popularFilms;
     }
