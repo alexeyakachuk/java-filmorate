@@ -83,7 +83,6 @@ public class UserDbStorage implements UserStorage {
         return findUser(userId);
     }
 
-
     @Override
     public User updateUser(User newUser) {
         // Проверяем, существует ли пользователь с данным ID
@@ -103,6 +102,9 @@ public class UserDbStorage implements UserStorage {
         // Выполняем запрос на обновление
         jdbcOperations.update(sql, params);
 
+        List<Long> friendsId = getFriendsByUserId(newUser.getId());
+        newUser.setFriends(new HashSet<>(friendsId));
+
 
         return findUser(newUser.getId());
     }
@@ -118,7 +120,6 @@ public class UserDbStorage implements UserStorage {
     }
 
     // метод добавления в друзей
-
     @Override
     public void addFriend(long fromUserId, long toUserId) {
         MapSqlParameterSource params = new MapSqlParameterSource();

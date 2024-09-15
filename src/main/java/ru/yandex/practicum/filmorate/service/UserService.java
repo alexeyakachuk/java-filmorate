@@ -51,9 +51,7 @@ public class UserService {
     public User updateUser(User newUser) {
 
         User user = userStorage.updateUser(newUser);
-        if (user.getFriends().isEmpty()) {
-            user.setFriends(null);
-        }
+
         return user;
     }
 
@@ -91,6 +89,4 @@ public class UserService {
                 .map(userStorage::findUser)
                 .collect(Collectors.toList());
     }
-
-
 }
