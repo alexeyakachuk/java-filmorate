@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,14 +24,23 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+//    public List<User> findAllUsers() {
+//        List<User> allUsers = userStorage.findAllUsers();
+////        for (User user : allUsers) {
+////            Long id = user.getId();
+////            List<Long> friendsId = userStorage.getFriendsByUserId(id);
+////            user.setFriends(new HashSet<>(friendsId));
+////        }
+//        return allUsers;
+//    }
+
     public List<User> findAllUsers() {
         List<User> allUsers = userStorage.findAllUsers();
-        for (User user : allUsers) {
-            Long id = user.getId();
-            List<Long> friendsId = userStorage.getFriendsByUserId(id);
-            user.setFriends(new HashSet<>(friendsId));
-        }
-        return allUsers;
+        Map<Long, Set<Long>> friendsByUserId = userStorage.getAllFriends();
+
+        return allUsers.stream()
+                .peek(user -> user.setFriends(friendsByUserId.getOrDefault(user.getId(), new HashSet<>())))
+                .collect(Collectors.toList());
     }
 
     public User findUser(long id) {

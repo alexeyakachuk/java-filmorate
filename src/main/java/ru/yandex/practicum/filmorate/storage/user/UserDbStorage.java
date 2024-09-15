@@ -14,9 +14,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,9 +28,32 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> findAllUsers() {
-        String query = "SELECT * FROM users";
+        String query = "SELECT users.*, friendships.from_user_id FROM users " +
+                "LEFT JOIN friendships ON users.id = friendships.from_user_id";
         return jdbcTemplate.query(query, mapper);
+
     }
+@Override
+public Map<Long, Set<Long>> getAllFriends() {
+        String query = "SELECT from_user_id, to_user_id FROM friendships";
+        Map<Long, Set<Long>> friendsByUserId = new HashMap<>();
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(query);
+        for (Map<String, Object> row : rows) {
+            Long fromUserId = (Long) row.get("from_user_id");
+            Long toUserId = (Long) row.get("to_user_id");
+
+            friendsByUserId.computeIfAbsent(fromUserId, k -> new HashSet<>()).add(toUserId);
+//            friendsByUserId.computeIfAbsent(toUserId, k -> new HashSet<>()).add(fromUserId);
+        }
+
+        return friendsByUserId;
+    }
+
+//    SELECT USERS.id, USERS.email, USERS.login, USERS.name, USERS.birthday, FRIENDSHIPS.from_user_id, FRIENDSHIPS.to_user_id
+//    FROM USERS
+//    LEFT JOIN FRIENDSHIPS ON USERS.id = FRIENDSHIPS.from_user_id OR USERS.id = FRIENDSHIPS.to_user_id
+//    ORDER BY USERS.id;
 
     @Override
     public User findUser(long id) {
@@ -86,9 +108,7 @@ public class UserDbStorage implements UserStorage {
         // Выполняем запрос на обновление
         jdbcOperations.update(sql, params);
 
-        // Получаем обновлённого пользователя
-//        String query = "SELECT * FROM users WHERE id = :id";
-//        return jdbcOperations.queryForObject(query, params, mapper);
+
         return findUser(newUser.getId());
     }
 
@@ -134,16 +154,28 @@ public class UserDbStorage implements UserStorage {
                 "WHERE from_user_id = :userId AND to_user_id = :friendId", params);
     }
 
-    @Override
-    public List<User> getUserFriends(long userId) {
-        List<Long> friendIds = getFriendsByUserId(userId);
-        List<User> friends = new ArrayList<>();
+//    @Override
+//    public List<User> getUserFriends(long userId) {
+//        List<Long> friendIds = getFriendsByUserId(userId);
+//        List<User> friends = new ArrayList<>();
+//
+//        for (Long friendId : friendIds) {
+//            User user = findUser(friendId);
+//            friends.add(user);
+//        }
+//
+//        return friends;
+//    }
+@Override
+public List<User> getUserFriends(long userId) {
+    String query = "SELECT f.to_user_id FROM friendships f WHERE f.from_user_id = :userId";
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("userId", userId);
+    List<Long> friendIds = jdbcOperations.queryForList(query, params, Long.class);
 
-        for (Long friendId : friendIds) {
-            User user = findUser(friendId);
-            friends.add(user);
-        }
-
-        return friends;
-    }
+    // Используем стримы для преобразования списка ID друзей в список объектов User
+    return friendIds.stream()
+            .map(this::findUser)
+            .collect(Collectors.toList());
+}
 }

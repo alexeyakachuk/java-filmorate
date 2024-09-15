@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class UserRowMapper implements RowMapper<User> {
@@ -17,6 +19,8 @@ public class UserRowMapper implements RowMapper<User> {
                 .email(resultSet.getString("email"))
                 .login(resultSet.getString("login"))
                 .birthday(resultSet.getTimestamp("birthday").toLocalDateTime().toLocalDate())
+                .friends(new HashSet<>())
                 .build();
+
     }
 }
