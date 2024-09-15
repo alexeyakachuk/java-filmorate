@@ -49,7 +49,12 @@ public class UserService {
     }
 
     public User updateUser(User newUser) {
-        return userStorage.updateUser(newUser);
+
+        User user = userStorage.updateUser(newUser);
+        if(user.getFriends().isEmpty()) {
+            user.setFriends(null);
+        }
+        return user;
     }
 
     public void addToFriendsList(long userId, long newFriendId) {
