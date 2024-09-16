@@ -28,5 +28,7 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
-    private Set<Long> like;
+    private Set<Long> likes;
+    private Mpa mpa;
+    private Set<Genre> genres;
 }
