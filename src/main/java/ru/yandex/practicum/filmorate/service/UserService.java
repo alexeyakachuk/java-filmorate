@@ -28,9 +28,15 @@ public class UserService {
         List<User> allUsers = userStorage.findAllUsers();
         Map<Long, Set<Long>> friendsByUserId = userStorage.getAllFriends();
 
-        return allUsers.stream()
-                .peek(user -> user.setFriends(friendsByUserId.getOrDefault(user.getId(), new HashSet<>())))
-                .collect(Collectors.toList());
+        for (User user : allUsers) {
+            Set<Long> friendsId = friendsByUserId.getOrDefault(user.getId(), new HashSet<>());
+            user.setFriends(friendsId);
+        }
+        return allUsers;
+
+//        return allUsers.stream()
+//                .peek(user -> user.setFriends(friendsByUserId.getOrDefault(user.getId(), new HashSet<>())))
+//                .collect(Collectors.toList());
     }
 
     public User findUser(long id) {

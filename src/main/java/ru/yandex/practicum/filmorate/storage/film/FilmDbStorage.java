@@ -22,27 +22,6 @@ public class FilmDbStorage implements FilmStorage {
     private final FilmRowMapper mapper;
     private final NamedParameterJdbcOperations jdbcOperations;
 
-//    @Override
-//    public List<Film> findAllFilm() {
-//        String query = "SELECT films.*, mpa.name FROM films JOIN mpa ON films.mpa_id = mpa.id ";
-//        // String query = "SELECT films.* FROM films";
-//        List<Film> films = jdbcOperations.query(query, mapper);
-//
-//        return films;
-//    }
-
-//    @Override
-//    public List<Film> findAllFilm() {
-//        String query = "SELECT films.*, mpa.name, GROUP_CONCAT(DISTINCT genres.name SEPARATOR ', ') AS genres  " +
-//                "FROM films " +
-//                "JOIN mpa ON films.mpa_id = mpa.id " +
-//                "LEFT JOIN film_genre ON films.id = film_genre.film_id " +
-//                "LEFT JOIN genres ON film_genre.genre_id = genres.id " +
-//                "GROUP BY films.id, mpa.name";
-//        List<Film> films = jdbcOperations.query(query, mapper);
-//        return films;
-//    }
-
     @Override
     public List<Film> findAllFilm() {
         String query = "SELECT films.*, mpa.name, GROUP_CONCAT(DISTINCT genres.name SEPARATOR ', ') " +
@@ -84,13 +63,6 @@ public class FilmDbStorage implements FilmStorage {
         params.addValue("size", size);
 
         // Определяем SQL-запрос для получения популярных фильмов с количеством лайков
-//        String query = "SELECT films.*, COUNT(likes.user_id) AS like_count, mpa.name " +
-//                "FROM films " +
-//                "JOIN mpa ON films.mpa_id = mpa.id " +
-//                "LEFT JOIN likes ON films.id = likes.film_id " +
-//                "GROUP BY films.id, mpa.name " +
-//                "ORDER BY like_count DESC " +
-//                "LIMIT :size";
         String query = "SELECT films.*, mpa.name, GROUP_CONCAT(DISTINCT genres.name SEPARATOR ', ') " +
                 "AS genres, COUNT(likes.user_id) AS likes_count " +
                 "FROM films " +

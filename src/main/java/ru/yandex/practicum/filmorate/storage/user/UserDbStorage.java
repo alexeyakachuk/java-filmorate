@@ -28,8 +28,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> findAllUsers() {
-        String query = "SELECT users.*, friendships.from_user_id FROM users " +
-                "LEFT JOIN friendships ON users.id = friendships.from_user_id";
+        String query = "SELECT * FROM users";
         return jdbcTemplate.query(query, mapper);
 
     }

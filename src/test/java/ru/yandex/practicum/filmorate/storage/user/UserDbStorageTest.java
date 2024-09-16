@@ -49,6 +49,7 @@ class UserDbStorageTest {
     @Test
     void findAllUsersTest() {
         List<User> allUsers = userStorage.findAllUsers();
+        userStorage.addFriend(testUser.getId(), testUser2.getId());
         assertEquals(2, allUsers.size());
     }
 
